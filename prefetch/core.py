@@ -157,6 +157,8 @@ class S3PrefetchFile(S3File):
             total_bytes = self.s3.du(self.path)
             offset = 0
 
+            prefetch_space = { path: { "total": space * 1024 ** 2, "used": 0 } for path, space in self.prefetch_storage }
+
             # Loop until all data has been read
             while self.fetch:
                 # remove files flagged for deletion
@@ -168,14 +170,14 @@ class S3PrefetchFile(S3File):
                 # Prefetch to cache
                 for path, space in self.prefetch_storage:
 
-                    space *= 1024 ** 2  # convert to bytes from megabytes
+                    while self.fetch and total_bytes > offset:
+                        if space == 0:
+                            avail_cache = disk_usage(path).free
+                            prefetch_space[path]["total"] = avail_cache
 
-                    if space == 0:
-                        avail_cache = disk_usage(path).free
-                    else:
-                        avail_cache = min(disk_usage(path).free, space)
-
-                    while self.fetch and avail_cache >= self.blocksize and total_bytes > offset:
+                        avail_space = prefetch_space[path]["total"] - prefetch_space[path]["used"]
+                        if avail_space < self.blocksize:
+                            break
 
                         data = self._fetch_range(offset, offset + self.blocksize)
 
@@ -186,18 +188,16 @@ class S3PrefetchFile(S3File):
                         with open(tmp_path, "wb") as f:
                             f.write(data)
 
+                        prefetch_space[path]["used"] += self.blocksize
+
                         os.rename(tmp_path, final_path)
                         offset += self.blocksize
-
-                        if space == 0:
-                            avail_cache = disk_usage(path).free
-                        else:
-                            avail_cache = min(disk_usage(path).free, space)
 
                     # if we have already read the entire file terminate prefetching
                     if total_bytes <= offset:
                         self.fetch = False
                         break
+
         except Exception as e:
             print(str(e))
 
@@ -218,7 +218,7 @@ class S3PrefetchFile(S3File):
                 self.loc = start + read_len
                 start = self.loc 
 
-                if start > end:
+                if start >= end:
                     os.rename(block.name, f"{block.name}{self.DELETE_STR}")
                 block.close()
 
