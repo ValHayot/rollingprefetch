@@ -4,6 +4,7 @@ import threading
 from pathlib import Path
 from shutil import disk_usage
 from s3fs import S3FileSystem, S3File
+from s3fs.core import _fetch_range
 from contextlib import contextmanager
 
 
@@ -97,6 +98,11 @@ class S3PrefetchFile(S3File):
         requester_pays=False,
     ):
 
+        if isinstance(path, list):
+            self.file_list = path
+            path = path[0]
+        else:
+            self.file_list = [path]
 
         super().__init__(
             s3,
@@ -150,12 +156,14 @@ class S3PrefetchFile(S3File):
     def _prefetch(self):
         """Concurrently fetch data from S3 in blocks and store in cache
         """
-        fn_prefix = os.path.basename(self.path)
 
         # try / except as filesystem may be closed by read thread
         try:
-            total_bytes = self.s3.du(self.path)
             offset = 0
+            file_idx = 0
+            total_bytes = self.s3.du(self.file_list[file_idx])
+            total_files = len(self.file_list)
+            fn_prefix = os.path.basename(self.file_list[file_idx])
 
             prefetch_space = { path: { "total": space * 1024 ** 2, "used": 0 } for path, space in self.prefetch_storage }
 
@@ -179,7 +187,9 @@ class S3PrefetchFile(S3File):
                         if avail_space < self.blocksize:
                             break
 
-                        data = self._fetch_range(offset, offset + self.blocksize)
+                        # maybe use s3fs split method here instead of os.path.basename
+                        # would enable specifying various bucked in list
+                        data = _fetch_range(self.fs, self.bucket, os.path.basename(self.file_list[file_idx]), self.version_id, offset, offset + self.blocksize, req_kw=self.req_kw,)
 
                         # only write to final path when data copy is complete
                         tmp_path = os.path.join(path, f".{fn_prefix}.{offset}.tmp")
@@ -194,7 +204,13 @@ class S3PrefetchFile(S3File):
                         offset += self.blocksize
 
                     # if we have already read the entire file terminate prefetching
-                    if total_bytes <= offset:
+                    # can use walrus op here
+                    if total_bytes <= offset and file_idx + 1 < total_files:
+                        file_idx += 1
+                        total_bytes = self.s3.du(self.file_list[file_idx])
+                        fn_prefix = os.path.basename(self.file_list[file_idx])
+                        offset = 0
+                    elif total_bytes <= offset:
                         self.fetch = False
                         break
 
@@ -218,7 +234,7 @@ class S3PrefetchFile(S3File):
                 self.loc = start + read_len
                 start = self.loc 
 
-                if start >= end:
+                if start >= pos[1]:
                     os.rename(block.name, f"{block.name}{self.DELETE_STR}")
                 block.close()
 
@@ -258,3 +274,5 @@ class S3PrefetchFile(S3File):
                 return cf_, (b_start, b_end)
 
         return None, None
+
+
