@@ -32,6 +32,7 @@ class S3PrefetchFileSystem(S3FileSystem):
         prefetch_storage=None,
         autocommit=True,
         requester_pays=None,
+        header_bytes=0,
         **kwargs,
     ):
         # path can be a list of files
@@ -70,6 +71,7 @@ class S3PrefetchFileSystem(S3FileSystem):
             cache_type=cache_type,
             autocommit=autocommit,
             requester_pays=requester_pays,
+            header_bytes=header_bytes,
         )
 
         try:
@@ -96,6 +98,7 @@ class S3PrefetchFile(S3File):
         autocommit=True,
         cache_type="none",
         requester_pays=False,
+        header_bytes=0,
     ):
 
         if isinstance(path, list):
@@ -121,6 +124,11 @@ class S3PrefetchFile(S3File):
         self.prefetch_storage = []
 
         self.prefetch_storage = prefetch_storage
+        self.header_bytes = header_bytes
+        self.path_size = self.s3.du(self.path)
+        self.file_idx = 0
+
+        self.size = sum(self.s3.du(f) - self.header_bytes*i for i,f in enumerate(self.file_list))
 
         # use asyncio here?
         self.fetch_thread = threading.Thread(target=self._prefetch)
@@ -226,8 +234,8 @@ class S3PrefetchFile(S3File):
 
             if block is None:
                 out += self._fetch_range(start, end)
-                self.loc = end
-                return out
+                self.loc += (end - start)
+                start = self.loc
             else:
                 read_len = min(end, pos[1]) - block.tell() - pos[0]
                 out += block.read(read_len)
@@ -237,6 +245,15 @@ class S3PrefetchFile(S3File):
                 if start >= pos[1]:
                     os.rename(block.name, f"{block.name}{self.DELETE_STR}")
                 block.close()
+
+            if start >= self.path_size and self.file_idx + 1 < len(self.file_list):
+                self.file_idx += 1
+                self.path = self.file_list[self.file_idx]
+                self.key = os.path.basename(self.path)
+                self.path_size = self.s3.du(self.path)
+                self.loc = self.header_bytes
+                start = self.loc
+                end = total_read_len - len(out) + self.loc
 
         return out
 
