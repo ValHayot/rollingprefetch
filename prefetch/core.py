@@ -4,6 +4,7 @@ import threading
 from pathlib import Path
 from shutil import disk_usage
 from s3fs import S3FileSystem, S3File
+from contextlib import contextmanager
 
 
 class S3PrefetchFileSystem(S3FileSystem):
@@ -20,6 +21,7 @@ class S3PrefetchFileSystem(S3FileSystem):
     # main differences are setting the cache to None
     # and prefetch_storage (might switch to cache_storage later??)
     # for now forcing mode to be "rb" TODO change?
+    @contextmanager
     def _open(
         self,
         path,
@@ -54,7 +56,7 @@ class S3PrefetchFileSystem(S3FileSystem):
         cache_type = "none"
         mode = "rb"
 
-        return S3PrefetchFile(
+        f = S3PrefetchFile(
             self,
             path,
             mode,
@@ -68,6 +70,11 @@ class S3PrefetchFileSystem(S3FileSystem):
             autocommit=autocommit,
             requester_pays=requester_pays,
         )
+
+        try:
+            yield f
+        finally:
+            f.close()
 
 
 class S3PrefetchFile(S3File):
@@ -115,8 +122,9 @@ class S3PrefetchFile(S3File):
         self.fetch_thread.start()
         #self._prefetch(s3, path)
 
-    def stop(self):
+    def close(self):
         self.fetch = False
+        super().close()
 
     # adapted from fsspec code
     def read(self, length=-1):
@@ -201,20 +209,17 @@ class S3PrefetchFile(S3File):
             block, pos = self._get_block()
 
             if block is None:
-                #print("not cached", start, end, len(out), total_read_len)
                 out += self._fetch_range(start, end)
                 self.loc = end
-                #print("out_len", len(out))
                 return out
             else:
                 read_len = min(end, pos[1]) - block.tell() - pos[0]
-                #print("cached", block.name, start, end, pos, len(out), read_len, total_read_len)
                 out += block.read(read_len)
                 self.loc = start + read_len
                 start = self.loc 
 
                 if start > end:
-                    os.rename(block.name, f"{block.name}{DELETE_STR}")
+                    os.rename(block.name, f"{block.name}{self.DELETE_STR}")
                 block.close()
 
         return out
