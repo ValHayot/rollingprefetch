@@ -223,7 +223,7 @@ class S3PrefetchFile(S3File):
                         break
 
         except Exception as e:
-            print(str(e))
+            print("Prefetch error: ", str(e))
 
     def _fetch_prefetched(self, start, end):
         total_read_len = end - start
