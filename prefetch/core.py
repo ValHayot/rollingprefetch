@@ -130,6 +130,7 @@ class S3PrefetchFile(S3File):
         self.file_idx = 0
 
         self.size = sum(self.s3.du(f) - self.header_bytes*i for i,f in enumerate(self.file_list))
+        print(self.size)
 
         # use asyncio here?
         self.fetch_thread = threading.Thread(target=self._prefetch)
@@ -160,6 +161,7 @@ class S3PrefetchFile(S3File):
             return b""
 
         out = self._fetch_prefetched(self.loc, self.loc + length)
+
         return out
 
     def _prefetch(self):
@@ -198,7 +200,9 @@ class S3PrefetchFile(S3File):
 
                         # maybe use s3fs split method here instead of os.path.basename
                         # would enable specifying various bucked in list
-                        data = _fetch_range(self.fs, self.bucket, os.path.basename(self.file_list[file_idx]), self.version_id, offset, offset + self.blocksize, req_kw=self.req_kw,)
+
+                        bucket, key, version_id  = self.s3.split_path(self.file_list[file_idx])
+                        data = _fetch_range(self.fs, bucket, key, version_id, offset, offset + self.blocksize, req_kw=self.req_kw,)
 
                         # only write to final path when data copy is complete
                         tmp_path = os.path.join(path, f".{fn_prefix}.{offset}.tmp")
@@ -234,7 +238,13 @@ class S3PrefetchFile(S3File):
             block, pos = self._get_block()
 
             if block is None:
-                out += self._fetch_range(start, end)
+                # EOF error
+                try:
+                    out += self._fetch_range(start, end)
+                except:
+                    self.loc += len(out)
+                    return out
+
                 self.loc += (end - start)
                 start = self.loc
             else:
@@ -250,7 +260,7 @@ class S3PrefetchFile(S3File):
             if start >= self.path_size and self.file_idx + 1 < len(self.file_list):
                 self.file_idx += 1
                 self.path = self.file_list[self.file_idx]
-                self.key = os.path.basename(self.path)
+                self.bucket, self.key, self.version_id = self.s3.split_path(self.path)
                 self.path_size = self.s3.du(self.path)
                 self.loc = self.header_bytes
                 start = self.loc
