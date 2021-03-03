@@ -57,6 +57,7 @@ class S3PrefetchFileSystem(S3FileSystem):
         fill_cache = False
         cache_type = "none"
         mode = "rb"
+        self.get_object = S3PrefetchFileSystem
 
         f = S3PrefetchFile(
             self,
