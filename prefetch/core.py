@@ -27,7 +27,7 @@ class S3PrefetchFileSystem(S3FileSystem):
     try:
         logging.config.fileConfig(logfile)
     except Exception as e:
-        logger.setLevel(logging.WARNING)
+        logger.setLevel(logging.ERROR)
         ch = logging.StreamHandler()
         ch.setLevel(logging.DEBUG)
 
@@ -185,8 +185,11 @@ class S3PrefetchFile(S3File):
 
         self.s3.logger.debug("Lauching evict thread")
         self.evict_thread = threading.Thread(target=self._remove,
-                args=(deepcopy(self.prefetch_storage),
-                self.DELETE_STR))
+                args=(deepcopy(self.key),
+                      deepcopy(self.prefetch_storage),
+                      deepcopy(self.path_sizes),
+                      deepcopy(self.file_list),
+                      self.DELETE_STR))
         self.evict_thread.start()
 
         self.b_start = 0
@@ -254,13 +257,20 @@ class S3PrefetchFile(S3File):
 
         return out
 
-    def _remove(self, prefetch_storage, DELETE_STR):
+    def _remove(self, key, prefetch_storage, path_sizes, file_list, DELETE_STR):
         self.s3.logger.debug("Removing files in cache with extension %s", DELETE_STR)
+
+        pf_dirs = [p[0] for p in prefetch_storage ]
+        block_ids = [f"{file_list[i]}.{j*self.blocksize}" for i in range(len(path_sizes)) for j in range((self.path_sizes[i] // self.blocksize) +1)]
+        cached_files = [os.path.join(fs, f"{bid}{DELETE_STR}") for fs in pf_dirs for bid in block_ids]
+
         while self.fetch:
-            for c in [cache[0] for cache in prefetch_storage]:
-                for p in Path(c).glob(f"*{DELETE_STR}"):
-                    self.s3.logger.debug("Removing %s", p.name)
-                    p.unlink()
+            for p in cached_files:
+                self.s3.logger.debug("Removing %s", p)
+                try:
+                    os.remove(p)
+                    cached_files.remove(p)
+                except: pass
         self.s3.logger.debug("Removal complete")
 
     #@profile
@@ -452,7 +462,7 @@ class S3PrefetchFile(S3File):
                     self.cf_.seek(c_offset, os.SEEK_SET)
                     return self.cf_, (self.b_start, self.b_end)
             except Exception as e:
-                self.s3.logger.error("Exception occured while opening block at position %d: %s", self.loc, str(e))
+                self.s3.logger.warning("Exception occured while opening block at position %d: %s", self.loc, str(e))
                 self.cf_ = None
                 self.b_start = None
                 self.b_end = None
