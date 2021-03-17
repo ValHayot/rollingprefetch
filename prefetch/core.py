@@ -261,17 +261,36 @@ class S3PrefetchFile(S3File):
 
         pf_dirs = [p[0] for p in prefetch_storage ]
         file_keys = [f.split("/")[1] for f in file_list]
-        block_ids = [f"{file_keys[i]}.{j*self.blocksize}" for i in range(len(path_sizes)) for j in range((self.path_sizes[i] // self.blocksize) +1)]
-        cached_files = [os.path.join(fs, f"{bid}{DELETE_STR}") for bid in block_ids for fs in pf_dirs]
+        block_ids = [f"{file_keys[i]}.{j*self.blocksize}{DELETE_STR}" for i in range(len(file_keys))
+                     for j in range((self.path_sizes[i] // self.blocksize) +1)]
 
+        found = False
+        updated_list = deepcopy(block_ids)
+        idx = None
         while self.fetch:
-            for p in cached_files:
-                try:
-                    os.remove(p)
-                    cached_files.remove(p)
-                    self.s3.logger.debug("Removed %s", p)
-                except Exception as e: pass
-                sleep(5)
+            for fname in block_ids:
+                for pf in pf_dirs:
+                    try:
+                        os.remove(os.path.join(pf, fname))
+                        idx = updated_list.index(fname)
+                        updated_list.remove(fname)
+                        found = True
+                        self.s3.logger.debug("Removed %s", fname)
+                        break
+                    except Exception as e: found = False
+                
+                # restart from beginning of list as file access is sequential
+                # if found:
+                #     for fname in deepcopy(updated_list[:idx]):
+                #         for pf in pf_dirs:
+                #             try:
+                #                 os.remove(os.path.join(pf, fname.removesuffix(DELETE_STR)))
+                #                 updated_list.remove(fname)
+                #                 self.s3.logger.debug("Removed %s", fname)
+                #                 break
+                #             except: pass
+            block_ids = deepcopy(updated_list)
+            sleep(20)
         self.s3.logger.debug("Removal complete")
 
     #@profile
@@ -392,10 +411,11 @@ class S3PrefetchFile(S3File):
 
                 if start >= pos[1]:
                     self.s3.logger.debug("Block %s read entirely (current position %d). Flagging for deletion", block.name, self.loc)
+                    block.close()
                     os.rename(block.name, f"{block.name}{self.DELETE_STR}")
-
+ 
             if start >= self.path_sizes[self.file_idx] and self.file_idx + 1 < len(self.file_list):
-                self.s3.logger.debug("Current block %s read entirely. Loading new block %s at position %d", self.path, self.file_list[self.file_idx], self.header_bytes)
+                self.s3.logger.debug("Current block %s read entirely. Loading new block %s at position %d", self.path, self.file_list[self.file_idx + 1], self.header_bytes)
                 self.file_idx += 1
                 self.path = self.file_list[self.file_idx]
                 self.bucket, self.key, self.version_id = self.s3.split_path(self.path)
