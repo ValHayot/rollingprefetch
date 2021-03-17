@@ -173,7 +173,7 @@ class S3PrefetchFile(S3File):
         self.fetch = True
 
         self.s3.logger.debug("Lauching prefetch thread")
-        self.fetch_thread = mp.Process(target=self._prefetch,
+        self.fetch_thread = threading.Thread(target=self._prefetch,
                 args=(deepcopy(self.file_list), 
                       deepcopy(self.prefetch_storage),
                       deepcopy(self.path_sizes),
@@ -182,6 +182,13 @@ class S3PrefetchFile(S3File):
                       deepcopy(self.req_kw)))
 
         self.fetch_thread.start()
+
+        self.s3.logger.debug("Lauching evict thread")
+        self.evict_thread = threading.Thread(target=self._remove,
+                args=(deepcopy(self.prefetch_storage),
+                self.DELETE_STR))
+        self.evict_thread.start()
+
         self.b_start = 0
         self.b_end = self.blocksize
         self.cf_ = None
