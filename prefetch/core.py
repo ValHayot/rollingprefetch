@@ -1,9 +1,9 @@
 import os
-import glob
 import asyncio
 import threading
 import concurrent.futures
 import multiprocessing as mp
+from time import sleep
 from copy import deepcopy
 from pathlib import Path
 from shutil import disk_usage
@@ -185,8 +185,7 @@ class S3PrefetchFile(S3File):
 
         self.s3.logger.debug("Lauching evict thread")
         self.evict_thread = threading.Thread(target=self._remove,
-                args=(deepcopy(self.key),
-                      deepcopy(self.prefetch_storage),
+                args=(deepcopy(self.prefetch_storage),
                       deepcopy(self.path_sizes),
                       deepcopy(self.file_list),
                       self.DELETE_STR))
@@ -257,20 +256,22 @@ class S3PrefetchFile(S3File):
 
         return out
 
-    def _remove(self, key, prefetch_storage, path_sizes, file_list, DELETE_STR):
+    def _remove(self, prefetch_storage, path_sizes, file_list, DELETE_STR):
         self.s3.logger.debug("Removing files in cache with extension %s", DELETE_STR)
 
         pf_dirs = [p[0] for p in prefetch_storage ]
-        block_ids = [f"{file_list[i]}.{j*self.blocksize}" for i in range(len(path_sizes)) for j in range((self.path_sizes[i] // self.blocksize) +1)]
-        cached_files = [os.path.join(fs, f"{bid}{DELETE_STR}") for fs in pf_dirs for bid in block_ids]
+        file_keys = [f.split("/")[1] for f in file_list]
+        block_ids = [f"{file_keys[i]}.{j*self.blocksize}" for i in range(len(path_sizes)) for j in range((self.path_sizes[i] // self.blocksize) +1)]
+        cached_files = [os.path.join(fs, f"{bid}{DELETE_STR}") for bid in block_ids for fs in pf_dirs]
 
         while self.fetch:
             for p in cached_files:
-                self.s3.logger.debug("Removing %s", p)
                 try:
                     os.remove(p)
                     cached_files.remove(p)
-                except: pass
+                    self.s3.logger.debug("Removed %s", p)
+                except Exception as e: pass
+                sleep(5)
         self.s3.logger.debug("Removal complete")
 
     #@profile
