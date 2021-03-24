@@ -23,5 +23,5 @@ setuptools.setup(
     ],
     install_requires=["s3fs"],
     packages=setuptools.find_packages(),
-    python_requires=">=3.8",
+    python_requires=">=3.7",
 )
