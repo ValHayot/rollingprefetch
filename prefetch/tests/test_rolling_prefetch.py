@@ -53,7 +53,9 @@ def s3_base():
 @pytest.fixture()
 def s3(s3_base):
     from botocore.session import Session
-
+    
+    os.environ.setdefault("AWS_ACCESS_KEY_ID", "foobar_key")
+    os.environ.setdefault("AWS_SECRET_ACCESS_KEY", "foobar_secret")
     # NB: we use the sync botocore client for setup
     session = Session()
     client = session.create_client("s3", endpoint_url=endpoint_uri)
