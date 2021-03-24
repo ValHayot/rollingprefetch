@@ -78,6 +78,7 @@ def create_main_file(s3):
 
     return s3_path
 
+
 @pytest.fixture
 def create_multi_files(s3):
     s3_paths = [os.path.join(BUCKET_NAME, f"random_{i}.bin") for i in range(4)]
@@ -88,6 +89,7 @@ def create_multi_files(s3):
             f.write(os.urandom(int(BLOCK_SIZE * 2)))
 
     return s3_paths
+
 
 @pytest.fixture
 def create_cached(create_main_file):
@@ -144,11 +146,7 @@ def test_prefetch(create_main_file):
     s3pf = _skip_init(S3PrefetchFile)
     s3pf.s3 = fs
     s3pf.fetch = True
-    s3pf._prefetch([fname], 
-                    list(CACHES.items()),
-                    [CACHE_SIZE],
-                    BLOCK_SIZE,
-                    fs.req_kw)
+    s3pf._prefetch([fname], list(CACHES.items()), [CACHE_SIZE], BLOCK_SIZE, fs.req_kw)
 
     f_bn = os.path.basename(fname)
 
@@ -156,9 +154,11 @@ def test_prefetch(create_main_file):
     cf = list(cached_files)
     assert len(cf) == 4
 
+
 def evict_timeout(s):
     sleep(20)
     s.fetch = False
+
 
 def test_eviction(create_main_file):
     fname = create_main_file
@@ -181,12 +181,7 @@ def test_eviction(create_main_file):
     t = threading.Thread(target=evict_timeout, args=[s3pf])
     t.start()
 
-    s3pf._remove(list(CACHES.items()),
-                [CACHE_SIZE],
-                BLOCK_SIZE,
-                [fname],
-                DELETE_STR)
-
+    s3pf._remove(list(CACHES.items()), [CACHE_SIZE], BLOCK_SIZE, [fname], DELETE_STR)
 
     cached_files = Path(CACHE_DIR).glob(f"{f_bn}*")
     cf = list(cached_files)
@@ -198,7 +193,12 @@ def test_get_block(create_cached):
     cc = dict(create_cached)
 
     fs = S3PrefetchFileSystem()
-    with fs.open(cc["s3_path"], "rb", block_size=BLOCK_SIZE, prefetch_storage=list(CACHES.items())) as f:
+    with fs.open(
+        cc["s3_path"],
+        "rb",
+        block_size=BLOCK_SIZE,
+        prefetch_storage=list(CACHES.items()),
+    ) as f:
         cf_, offset = f._get_block()
 
     print(cc)
@@ -211,51 +211,70 @@ def test_fetch_prefetched(create_cached):
     fs = S3PrefetchFileSystem()
     cc = dict(create_cached)
 
-
-    with fs.open(cc["s3_path"], "rb", block_size=BLOCK_SIZE, prefetch_storage=list(CACHES.items())) as f:
+    with fs.open(
+        cc["s3_path"],
+        "rb",
+        block_size=BLOCK_SIZE,
+        prefetch_storage=list(CACHES.items()),
+    ) as f:
         data = f._fetch_prefetched(0, cc["nbytes"])
 
     actual = cc["f"].read(cc["nbytes"])
 
-    assert(len(data) == len(actual) == cc["nbytes"])
-    assert(data == actual)
+    assert len(data) == len(actual) == cc["nbytes"]
+    assert data == actual
     assert os.path.exists(f"{cc['cf_'].name}{DELETE_STR}")
     cleanup(os.path.basename(cc["s3_path"]))
+
 
 def test_read_cached(create_cached):
     fs = S3PrefetchFileSystem()
     cc = dict(create_cached)
 
-    with fs.open(cc["s3_path"], "rb", block_size=BLOCK_SIZE, prefetch_storage=list(CACHES.items())) as f:
+    with fs.open(
+        cc["s3_path"],
+        "rb",
+        block_size=BLOCK_SIZE,
+        prefetch_storage=list(CACHES.items()),
+    ) as f:
         data = f.read(cc["nbytes"])
 
-    assert(data == cc["f"].read(cc["nbytes"]))
+    assert data == cc["f"].read(cc["nbytes"])
     assert os.path.exists(f"{cc['cf_'].name}{DELETE_STR}")
     cleanup(os.path.basename(cc["s3_path"]))
+
 
 def test_read_uncached(create_main_file):
     fs = S3PrefetchFileSystem()
     s3_path = str(create_main_file)
 
-    with fs.open(s3_path, "rb", block_size=BLOCK_SIZE, prefetch_storage=list(CACHES.items())) as f:
+    with fs.open(
+        s3_path, "rb", block_size=BLOCK_SIZE, prefetch_storage=list(CACHES.items())
+    ) as f:
         data = f.read()
 
     fs = S3FileSystem()
     with fs.open(s3_path, "rb") as f:
         actual_data = f.read()
 
-    assert(data == actual_data)
+    assert data == actual_data
     cleanup(os.path.basename(s3_path))
 
 
 def test_multi_files(create_multi_files):
     fs = S3PrefetchFileSystem()
     s3 = S3FileSystem()
-    s3_paths = list(create_multi_files)     
+    s3_paths = list(create_multi_files)
 
     fs.invalidate_cache()
 
-    with fs.open(s3_paths, "rb", header_bytes=0, block_size=BLOCK_SIZE, prefetch_storage=list(CACHES.items())) as f:
+    with fs.open(
+        s3_paths,
+        "rb",
+        header_bytes=0,
+        block_size=BLOCK_SIZE,
+        prefetch_storage=list(CACHES.items()),
+    ) as f:
         for p in s3_paths:
             assert f.path == p
             data = f.read(BLOCK_SIZE * 2)
