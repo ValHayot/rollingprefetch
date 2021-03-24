@@ -11,7 +11,7 @@ from time import sleep
 from pathlib import Path
 
 from s3fs.core import S3FileSystem
-from prefetch import S3PrefetchFileSystem, S3PrefetchFile
+from ..core import S3PrefetchFileSystem, S3PrefetchFile
 
 
 CACHE_DIR = "/dev/shm"
