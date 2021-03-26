@@ -285,24 +285,26 @@ class S3PrefetchFile(S3File):
             for j in range(int(path_sizes[i] // blocksize) + 1)
         ]
 
-        found = False
         updated_list = deepcopy(block_ids)
-        idx = None
-        while self.fetch:
+
+        def evict(block_ids, pf_dirs, updated_list):
             for fname in block_ids:
                 for pf in pf_dirs:
                     try:
                         os.remove(os.path.join(pf, fname))
-                        idx = updated_list.index(fname)
                         updated_list.remove(fname)
-                        found = True
                         self.s3.logger.debug("Removed %s", fname)
                         break
                     except Exception as e:
-                        found = False
-
+                        pass
             block_ids = deepcopy(updated_list)
-            sleep(20)
+
+        while self.fetch:
+            sleep(5)
+            evict(block_ids, pf_dirs, updated_list)
+
+        evict(block_ids, pf_dirs, updated_list)
+
         self.s3.logger.debug("Removal complete")
 
     def _prefetch(self, file_list, prefetch_storage, path_sizes, blocksize, req_kw):
