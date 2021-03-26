@@ -6,14 +6,14 @@ import helpers
 import os
 
 @helpers.benchmark
-def read_mem(path, lazy, bfile="read_file.bench"):
+def read_nib(path, lazy, bfile="read_file.bench"):
     helpers.drop_caches()
     with open(path, "rb") as f:
         streamlines = TrkFile.load(f, lazy_load=lazy).streamlines
 
 
 @helpers.benchmark
-def read_nib(path, lazy, bfile="read_file.bench"):
+def read_mem(path, lazy, bfile="read_file.bench"):
     helpers.drop_caches()
 
     with open(path, "rb") as f:
