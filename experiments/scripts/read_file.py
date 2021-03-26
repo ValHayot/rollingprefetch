@@ -10,7 +10,7 @@ import os
 
 @helpers.benchmark
 def read_trk(f, lazy, bfile="read_file.bench"):
-    streamlines = TrkFile.load(f, lazy_load=False).streamlines
+    streamlines = TrkFile.load(f, lazy_load=lazy).streamlines
 
     if lazy:
         for stream in streamlines:
