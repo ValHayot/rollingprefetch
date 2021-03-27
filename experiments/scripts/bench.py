@@ -60,7 +60,7 @@ filesystems = ["aws", "local", "mem"]
 reps = 5
 
 with open(output, "w+") as f:
-    f.write("fs,repetition,size,time")
+    f.write("fs,repetition,size,time\n")
 
 for r in range(reps):
     for i in range(1, 12):
