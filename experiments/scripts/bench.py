@@ -7,7 +7,7 @@ import subprocess as sp
 from time import perf_counter
 
 output = "../results/us-west-2-xlarge/filetransferpy.bench"
-s3_path = "vhs-testbucket/rand"
+s3_path = "vhs-bucket/rand"
 
 
 def write_benchmark(fs, rep, size, time):
@@ -24,7 +24,7 @@ def bench_aws(size, rep):
     s3 = s3fs.S3FileSystem()
 
     start = perf_counter()
-    with s3.open(f"{s3_path}{size}.out", "rb") as f:
+    with s3.open(f"{s3_path}{size}.out", "rb", block_size= size * 2 **20) as f:
         data = f.read()
     end = perf_counter()
 
@@ -63,7 +63,7 @@ with open(output, "w+") as f:
     f.write("fs,repetition,size,time")
 
 for r in range(reps):
-    for i in range(1, 11):
+    for i in range(1, 12):
         random.shuffle(filesystems)
 
         for fs in filesystems:
