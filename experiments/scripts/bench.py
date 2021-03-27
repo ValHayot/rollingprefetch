@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 import os
 import helpers
+
 import s3fs
+from prefetch.core import S3PrefetchFileSystem
+
 import random
 import subprocess as sp
 from time import perf_counter
@@ -26,6 +29,25 @@ def bench_aws(size, rep, output, block_size=None):
 
     start = perf_counter()
     with s3.open(f"{s3_path}{size}.out", "rb", block_size=block_size) as f:
+        data = f.read()
+    end = perf_counter()
+
+    write_benchmark(output, fs, rep, size, end - start, block_size)
+
+
+def bench_prefetch(size, rep, output, block_size=None, prefetch_storage=[("/dev/shm", 5*1024**2)]):
+    fs = "prefetch"
+
+    if block_size is None:
+        block_size = size * 2 ** 20
+
+    # clear caches
+    helpers.drop_caches()
+
+    s3 = S3PrefetchFileSystem()
+
+    start = perf_counter()
+    with s3.open(f"{s3_path}{size}.out", "rb", block_size=block_size, prefetch_storage=prefetch_storage) as f:
         data = f.read()
     end = perf_counter()
 
@@ -94,11 +116,20 @@ def bench_blocksize():
 
     create_header(output)
 
+    fs = ["s3fs", "prefetch"]
+
     for r in range(reps):
         random.shuffle(bsizes)
+        random.shuffle(fs)
 
         for b in bsizes:
-            print("executing aws", r, size, b)
-            bench_aws(size, r, output, b*2**20)
+
+            for f in fs:
+                if "s3fs" in f:
+                    print("executing s3fs", r, size, b)
+                    bench_aws(size, r, output, b*2**20)
+                else:
+                    print("executing prefetch", r, size, b)
+                    bench_prefetch(size, r, output, b*2**20)
 
 bench_blocksize()
