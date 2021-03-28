@@ -11,25 +11,53 @@ from time import perf_counter
 
 s3_path = "vhs-bucket/rand"
 
+def gen_random(start, end):
+
+    for i in range(start, end):
+        size = 2 ** i
+        fname = f"{s3_path}{size}.out"
+
+        # generate a random bytestring
+        data = os.urandom(size)
+
+        print("creating randome file", fname, "of size", size)
+
+        fs = s3fs.S3FileSystem()
+
+        with fs.open(fname, "wb") as f:
+            f.write(data)
+
+
 def write_benchmark(output, fs, rep, size, time, blocksize=-1):
     with open(output, "a+") as f:
         f.write(f"{fs},{rep},{size},{time},{blocksize}\n")
 
 
-def bench_aws(size, rep, output, block_size=None):
+def read_chunks(f, chunk_size, file_size):
+    for i in range(int((file_size * 2 **20) // chunk_size)):
+        data = f.read(chunk_size)
+
+
+def bench_aws(size, rep, output, block_size=None, read_size=-1):
     fs = "aws"
 
     if block_size is None:
-        block_size = size * 2 ** 20
+        block_size = size
 
     # clear caches
     helpers.drop_caches()
 
     s3 = s3fs.S3FileSystem()
+    s3.invalidate_cache()
 
     start = perf_counter()
+
     with s3.open(f"{s3_path}{size}.out", "rb", block_size=block_size) as f:
-        data = f.read()
+        if read_size == -1:
+            data = f.read()
+        else:
+            read_chunks(f, read_size, size)
+
     end = perf_counter()
 
     write_benchmark(output, fs, rep, size, end - start, block_size)
@@ -39,7 +67,7 @@ def bench_prefetch(size, rep, output, block_size=None, prefetch_storage=[("/dev/
     fs = "prefetch"
 
     if block_size is None:
-        block_size = size * 2 ** 20
+        block_size = size
 
     # clear caches
     helpers.drop_caches()
@@ -87,13 +115,14 @@ def create_header(output):
 
 def bench_storage():
     filesystems = ["aws", "local", "mem"]
-    reps = 5
+    reps = 20
     output = "../results/us-west-2-xlarge/filetransferpy.bench"
 
     create_header(output)
+    gen_random(10,32)
 
     for r in range(reps):
-        for i in range(1, 12):
+        for i in range(10, 32):
             random.shuffle(filesystems)
 
             for fs in filesystems:
@@ -109,14 +138,14 @@ def bench_storage():
 
 
 def bench_blocksize():
-    reps = 5
-    bsizes = [2**i for i in range(1, 12)]
+    reps = 1 #5
+    bsizes = [2**i for i in range(1, 3)] #12)]
     output = "../results/us-west-2-xlarge/blocksize_s3fs.bench"
     size = 2048
 
     create_header(output)
 
-    fs = ["s3fs", "prefetch"]
+    fs = ["s3fs"]#["s3fs"]#, "prefetch"]
 
     for r in range(reps):
         random.shuffle(bsizes)
@@ -132,4 +161,5 @@ def bench_blocksize():
                     print("executing prefetch", r, size, b)
                     bench_prefetch(size, r, output, b*2**20)
 
-bench_blocksize()
+#bench_blocksize()
+bench_storage()
