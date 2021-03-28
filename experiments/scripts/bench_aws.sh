@@ -13,7 +13,7 @@ bench_aws () {
 	echo 3 | sudo tee /proc/sys/vm/drop_caches
 
 	#read file and store benchmark in variable
-	runtime=$(/usr/bin/time -f %e,%U,%S aws s3 cp s3://vhs-testbucket/rand${mb}.out - 2>&1 > /dev/null)
+	runtime=$(/usr/bin/time -f %e,%U,%S aws s3 cp s3://vhs-bucket/rand${mb}.out - 2>&1 > /dev/null)
 	echo "${fs},${r},${mb},${runtime}" >> $output
 }
 
@@ -31,13 +31,13 @@ bench_local() {
 	fi
 
 	# get file from aws
-	aws s3 cp s3://vhs-testbucket/rand${mb}.out $file
+	aws s3 cp s3://vhs-bucket/rand${mb}.out $file
 
 	# clear caches
 	echo 3 | sudo tee /proc/sys/vm/drop_caches
 
 	#read file and store benchmark in variable
-	runtime=$(/usr/bin/time -f %e,%U,%S dd if=$file of=/dev/null 2>&1 > /dev/null )
+	runtime=$(/usr/bin/time -f %e,%U,%S dd if=$file of=/dev/null bs=5M 2>&1 > /dev/null )
 	runtime=${runtime##*$'\n'}
 	echo "${fs},${r},${mb},${runtime}" >> $output
 
