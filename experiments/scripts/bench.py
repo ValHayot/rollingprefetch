@@ -41,7 +41,7 @@ def read_chunks(f, chunk_size, file_size, fs, rep, size, bs, output):
         data = f.read(chunk_size)
         end = perf_counter()
 
-        write_benchmark(output, fs, rep, f"read_{i}", end-start, bs, chunk_size, file_size)
+        write_benchmark(output, fs, rep, f"read_{i}", size, end-start, bs, chunk_size, file_size)
 
     return end
 
