@@ -28,18 +28,32 @@ def gen_random(start, end):
             f.write(data)
 
 
-def write_benchmark(output, fs, rep, size, time, blocksize=-1):
+def write_benchmark(output, fs, rep, action, size, time, blocksize=-1, read_size=-1, read_len=None):
+
     with open(output, "a+") as f:
-        f.write(f"{fs},{rep},{size},{time},{blocksize}\n")
+        f.write(f"{fs},{rep},{action},{size},{time},{blocksize},{read_size},{read_len}\n")
 
 
-def read_chunks(f, chunk_size, file_size):
-    for i in range(int((file_size * 2 **20) // chunk_size)):
+def read_chunks(f, chunk_size, file_size, fs, rep, size, bs, output):
+
+    for i in range(int(file_size // chunk_size)):
+        start = perf_counter()
         data = f.read(chunk_size)
+        end = perf_counter()
+
+        write_benchmark(output, fs, rep, f"read_{i}", end-start, bs, chunk_size, file_size)
+
+    return end
 
 
-def bench_aws(size, rep, output, block_size=None, read_size=-1):
+def bench_aws(size, rep, output, block_size=None, read_size=-1,read_len=None):
     fs = "aws"
+
+    if read_len is None:
+        read_len = size
+
+    if read_size == -1:
+        read_size = size
 
     if block_size is None:
         block_size = size
@@ -50,21 +64,24 @@ def bench_aws(size, rep, output, block_size=None, read_size=-1):
     s3 = s3fs.S3FileSystem()
     s3.invalidate_cache()
 
-    start = perf_counter()
+    start_open = perf_counter()
 
     with s3.open(f"{s3_path}{size}.out", "rb", block_size=block_size) as f:
-        if read_size == -1:
-            data = f.read()
-        else:
-            read_chunks(f, read_size, size)
+        end_open = perf_counter()
+        end = read_chunks(f, read_size, read_len, fs, rep, size, block_size, output)
 
-    end = perf_counter()
-
-    write_benchmark(output, fs, rep, size, end - start, block_size)
+    write_benchmark(output, fs, rep, "total", size, end - start_open, block_size, read_size, read_len)
+    write_benchmark(output, fs, rep, "open", size, end_open - start_open, block_size, read_size, read_len)
 
 
-def bench_prefetch(size, rep, output, block_size=None, prefetch_storage=[("/dev/shm", 5*1024**2)]):
-    fs = "prefetch"
+def bench_prefetch(size, rep, output, block_size=None, prefetch_storage=[("/dev/shm", 5*1024**2)], read_size=-1, read_len=None):
+    fs = "pf"
+
+    if read_len is None:
+        read_len = size
+
+    if read_size == -1:
+        read_size = size
 
     if block_size is None:
         block_size = size
@@ -74,17 +91,25 @@ def bench_prefetch(size, rep, output, block_size=None, prefetch_storage=[("/dev/
 
     s3 = S3PrefetchFileSystem()
 
-    start = perf_counter()
+    start_open = perf_counter()
     with s3.open(f"{s3_path}{size}.out", "rb", block_size=block_size, prefetch_storage=prefetch_storage) as f:
-        data = f.read()
-    end = perf_counter()
+        end_open = perf_counter()
+        end = read_chunks(f, read_size, read_len, fs, rep, size, block_size, output)
 
-    write_benchmark(output, fs, rep, size, end - start, block_size)
+    write_benchmark(output, fs, rep, "total", size, end - start_open, block_size, read_size, read_len)
+    write_benchmark(output, fs, rep, "open", size, end_open - start_open, block_size, read_size, read_len)
 
 
-def bench_local(size, rep, fs, output):
+def bench_local(size, rep, fs, output, read_size=-1, read_len=None):
 
+    block_size = -1
     path = f"/dev/shm/rand{size}.out"
+
+    if read_len is None:
+        read_len = size
+
+    if read_size == -1:
+        read_size = size
 
     if "local" == fs:
         path = f"/home/ec2-user/rand{size}.out"
@@ -96,12 +121,14 @@ def bench_local(size, rep, fs, output):
     helpers.drop_caches()
 
     # read file and store benchmark in variable
-    start = perf_counter()
+    start_open = perf_counter()
     with open(path, "rb") as f:
-        data = f.read()
-    end = perf_counter()
+        end_open = perf_counter()
 
-    write_benchmark(output, fs, rep, size, end - start)
+        end = read_chunks(f, read_size, read_len, fs, rep, size, block_size, output)
+
+    write_benchmark(output, fs, rep, "total", size, end - start_open, block_size, read_size, read_len)
+    write_benchmark(output, fs, rep, "open", size, end_open - start_open, block_size, read_size, read_len)
 
     # cleanup
     os.unlink(path)
@@ -110,13 +137,15 @@ def bench_local(size, rep, fs, output):
 def create_header(output):
 
     with open(output, "w+") as f:
-        f.write("fs,repetition,size,time,blocksize\n")
+        f.write("fs,repetition,action,size,time,blocksize,readsize,readlen\n")
 
 
 def bench_storage():
     filesystems = ["aws", "local", "mem"]
     reps = 20
-    output = "../results/us-west-2-xlarge/filetransferpy.bench"
+    output = "../results/us-west-2-xlarge/filetransfer-latency.bench"
+    read_size=1024
+    read_len=read_size * 20
 
     create_header(output)
     gen_random(10,32)
@@ -130,11 +159,11 @@ def bench_storage():
 
                 if "aws" in fs:
                     print("executing aws", r, size)
-                    bench_aws(size, r, output)
+                    bench_aws(size, r, output, read_size=read_size, read_len=read_len)
 
                 else:
                     print("executing", fs, r, size)
-                    bench_local(size, r, fs, output)
+                    bench_local(size, r, fs, output, read_size=read_size, read_len=read_len)
 
 
 def bench_blocksize():
