@@ -167,14 +167,16 @@ def bench_storage():
 
 
 def bench_blocksize():
-    reps = 1 #5
-    bsizes = [2**i for i in range(1, 3)] #12)]
+    reps = 5
+    bsizes = [2**i for i in range(20, 32)]
     output = "../results/us-west-2-xlarge/blocksize_s3fs.bench"
-    size = 2048
+    size = 2048*1024**2
+
+    print(size)
 
     create_header(output)
 
-    fs = ["s3fs"]#["s3fs"]#, "prefetch"]
+    fs = ["s3fs", "prefetch"]
 
     for r in range(reps):
         random.shuffle(bsizes)
@@ -185,10 +187,10 @@ def bench_blocksize():
             for f in fs:
                 if "s3fs" in f:
                     print("executing s3fs", r, size, b)
-                    bench_aws(size, r, output, b*2**20)
+                    bench_aws(size, r, output, block_size=b, read_size=b)
                 else:
                     print("executing prefetch", r, size, b)
-                    bench_prefetch(size, r, output, b*2**20)
+                    bench_prefetch(size, r, output, block_size=b, read_size=b)
 
-#bench_blocksize()
-bench_storage()
+bench_blocksize()
+#bench_storage()

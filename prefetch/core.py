@@ -578,6 +578,8 @@ class S3PrefetchFile(S3File):
                     self.b_start = None
                     self.b_end = None
 
+                sleep(0.1)
+
         #self.s3.logger.error("Position %d not found in any cached block", self.loc)
 
         #return None, None
