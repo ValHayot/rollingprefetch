@@ -51,7 +51,7 @@ def main():
 
     bfile="../results/us-west-2-xlarge/read_12_58_7.out"
 
-    reps = 5
+    reps = 20
 
     types = ["mem", "prefetch", "s3fs"]
 
