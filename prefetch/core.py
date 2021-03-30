@@ -161,7 +161,7 @@ class S3PrefetchFile(S3File):
 
         self.size = sum(
             self.path_sizes[i] - self.header_bytes for i in range(len(self.path_sizes))
-        )
+        ) + self.header_bytes
 
         self.fetch = True
 
@@ -192,6 +192,7 @@ class S3PrefetchFile(S3File):
         )
         self.evict_thread.start()
 
+        self.global_pos = 0
         self.b_start = 0
         self.b_end = self.blocksize
         self.cf_ = None
@@ -261,13 +262,16 @@ class S3PrefetchFile(S3File):
         self.s3.logger.debug(
             "Reading the next %d bytes from file %s", length, self.path
         )
+
         length = -1 if length is None else int(length)
         if length < 0:
-            length = self.size - self.loc
+            length = self.size - self.global_pos
         if self.closed:
             raise ValueError("I/O operation on closed file.")
         if length == 0:
             # don't even bother calling fetch
+            return b""
+        if self.global_pos + self.loc - self.header_bytes >= self.size:
             return b""
 
         out = self._fetch_prefetched(self.loc, self.loc + length)
@@ -319,7 +323,7 @@ class S3PrefetchFile(S3File):
         total_files = len(file_list)
 
         prefetch_space = {
-            path: {"total": space * 1024 ** 2, "used": 0}
+            path: {"total": space*1024**2, "used": 0}
             for path, space in prefetch_storage
         }
         fetched_paths = []
@@ -345,7 +349,7 @@ class S3PrefetchFile(S3File):
                 if avail_space < blocksize:
                     if len(fetched_paths) > 0:
                         for i in range(len(fetched_paths)):
-                            if os.path.exists(fetched_paths[i]):
+                            if os.path.exists(fetched_paths[i]) or os.path.exists(fetched_paths[i] + ".nibtodelete"):
                                 break
                             elif path in fetched_paths[i]:
                                 prefetch_space[path]["used"] -= blocksize
@@ -360,31 +364,33 @@ class S3PrefetchFile(S3File):
 
                         fetched_paths = fetched_paths[i:]
 
-                bucket, key, version_id = s3.split_path(file_list[file_idx])
-                data = _fetch_range(
-                    fs,
-                    bucket,
-                    key,
-                    version_id,
-                    offset,
-                    offset + blocksize,
-                    req_kw=req_kw,
-                )
+                if avail_space >= blocksize:
 
-                # only write to final path when data copy is complete
-                tmp_path = os.path.join(path, f".{key}.{offset}.tmp")
-                final_path = os.path.join(path, f"{key}.{offset}")
-                self.s3.logger.debug("Prefetched data to %s", final_path)
+                    bucket, key, version_id = s3.split_path(file_list[file_idx])
+                    data = _fetch_range(
+                        fs,
+                        bucket,
+                        key,
+                        version_id,
+                        offset,
+                        offset + blocksize,
+                        req_kw=req_kw,
+                    )
 
-                with open(tmp_path, "wb") as f:
-                    f.write(data)
+                    # only write to final path when data copy is complete
+                    tmp_path = os.path.join(path, f".{key}.{offset}.tmp")
+                    final_path = os.path.join(path, f"{key}.{offset}")
+                    self.s3.logger.debug("Prefetched data to %s", final_path)
 
-                prefetch_space[path]["used"] += blocksize
+                    with open(tmp_path, "wb") as f:
+                        f.write(data)
 
-                os.rename(tmp_path, final_path)
-                fetched_paths.append(final_path)
+                    prefetch_space[path]["used"] += blocksize
 
-                offset += int(blocksize)
+                    os.rename(tmp_path, final_path)
+                    fetched_paths.append(final_path)
+
+                    offset += int(blocksize)
 
             except Exception as e:
                 self.s3.logger.error(
@@ -470,6 +476,8 @@ class S3PrefetchFile(S3File):
                 self.loc += read_len
                 start = self.loc
 
+                self.s3.logger.debug("Current position in block %d block size %d", start, pos[1])
+
                 if start >= pos[1]:
                     self.s3.logger.debug(
                         "Block %s read entirely (current position %d). Flagging for deletion",
@@ -488,6 +496,11 @@ class S3PrefetchFile(S3File):
                     self.file_list[self.file_idx + 1],
                     self.header_bytes,
                 )
+                self.global_pos += self.path_sizes[self.file_idx]
+
+                if self.file_idx > 0:
+                    self.global_pos -= self.header_bytes
+
                 self.file_idx += 1
                 self.path = self.file_list[self.file_idx]
                 self.bucket, self.key, self.version_id = self.s3.split_path(self.path)
@@ -541,8 +554,9 @@ class S3PrefetchFile(S3File):
             self.s3.logger.warning("Was not able to close block. exception: %s", str(e))
 
         # Iterate through the cached files/offsets
-        while True:
+        while True :
             for f in cached_files:
+
 
                 try:
                     #while os.path.exists(f".{f}.tmp"):
@@ -550,7 +564,7 @@ class S3PrefetchFile(S3File):
 
                     # Get position of cached block relative to original file
                     b_start = int(f.split(".")[-1])
-                    b_end = min(b_start + self.blocksize, self.size)
+                    b_end = min(min(b_start + self.blocksize, self.path_sizes[self.file_idx]), self.size)
                     # if self.loc > 905969164:
                     #    print("curr file", f, b_start, b_end, self.loc)
                     self.s3.logger.debug(
@@ -582,4 +596,4 @@ class S3PrefetchFile(S3File):
 
         #self.s3.logger.error("Position %d not found in any cached block", self.loc)
 
-        #return None, None
+        return None, None
