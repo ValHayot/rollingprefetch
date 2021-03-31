@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 from nibabel.streamlines import TrkFile
+from s3fs import S3FileSystem
 
 import random
 import helpers
@@ -42,8 +43,8 @@ def main():
     for _ in range(reps):
 
         for i in range(1 ,n_files + 1):
-            paths = all_paths[0:f]
-            mem_paths = all_mem_paths[0:f]
+            paths = all_paths[0:i]
+            mem_paths = all_mem_paths[0:i]
 
             fs.get(paths, mem_paths)
 
@@ -54,9 +55,9 @@ def main():
                     read_mem(mem_paths, lazy, bfile=bfile)
 
                 else:
-                    read_nib(paths, lazy, bfile=bfile)
+                    read_nib(mem_paths, lazy, bfile=bfile)
 
-            for p in mem_path:
+            for p in mem_paths:
                 os.unlink(p)
 
 
