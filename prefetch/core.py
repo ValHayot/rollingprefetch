@@ -315,83 +315,85 @@ class S3PrefetchFile(S3File):
                 prefetch_space[path]["total"] = avail_cache
 
         while self.fetch:
-            # NOTE: will use a bit of memory to read/write file. Need to warn user
-            # Prefetch to cache
 
-            # try / except as filesystem may be closed by read thread
-            try:
+            for path in prefetch_space.keys()
+                # NOTE: will use a bit of memory to read/write file. Need to warn user
+                # Prefetch to cache
 
-                avail_space = (
-                    prefetch_space[path]["total"] - prefetch_space[path]["used"]
-                )
-                if avail_space < blocksize:
-                    if len(fetched_paths) > 0:
-                        for i in range(len(fetched_paths)):
-                            if os.path.exists(fetched_paths[i]) or os.path.exists(fetched_paths[i] + ".nibtodelete"):
-                                break
-                            elif path in fetched_paths[i]:
-                                prefetch_space[path]["used"] -= blocksize
-                                avail_space += blocksize
-                                self.s3.logger.warning(
-                                    "Path %s has been evicted. Used space on %s now %d/%d",
-                                    fetched_paths[i],
-                                    path,
-                                    prefetch_space[path]["used"],
-                                    prefetch_space[path]["total"],
-                                )
+                # try / except as filesystem may be closed by read thread
+                try:
 
-                        fetched_paths = fetched_paths[i:]
+                    avail_space = (
+                        prefetch_space[path]["total"] - prefetch_space[path]["used"]
+                    )
+                    if avail_space < blocksize:
+                        if len(fetched_paths) > 0:
+                            for i in range(len(fetched_paths)):
+                                if os.path.exists(fetched_paths[i]) or os.path.exists(fetched_paths[i] + ".nibtodelete"):
+                                    break
+                                elif path in fetched_paths[i]:
+                                    prefetch_space[path]["used"] -= blocksize
+                                    avail_space += blocksize
+                                    self.s3.logger.warning(
+                                        "Path %s has been evicted. Used space on %s now %d/%d",
+                                        fetched_paths[i],
+                                        path,
+                                        prefetch_space[path]["used"],
+                                        prefetch_space[path]["total"],
+                                    )
 
-                if avail_space >= blocksize:
+                            fetched_paths = fetched_paths[i:]
 
-                    bucket, key, version_id = s3.split_path(file_list[file_idx])
-                    data = _fetch_range(
-                        fs,
-                        bucket,
-                        key,
-                        version_id,
-                        offset,
-                        offset + blocksize,
-                        req_kw=req_kw,
+                    if avail_space >= blocksize:
+
+                        bucket, key, version_id = s3.split_path(file_list[file_idx])
+                        data = _fetch_range(
+                            fs,
+                            bucket,
+                            key,
+                            version_id,
+                            offset,
+                            offset + blocksize,
+                            req_kw=req_kw,
+                        )
+
+                        # only write to final path when data copy is complete
+                        tmp_path = os.path.join(path, f".{key}.{offset}.tmp")
+                        final_path = os.path.join(path, f"{key}.{offset}")
+                        self.s3.logger.debug("Prefetched data to %s", final_path)
+
+                        with open(tmp_path, "wb") as f:
+                            f.write(data)
+
+                        prefetch_space[path]["used"] += blocksize
+
+                        os.rename(tmp_path, final_path)
+                        fetched_paths.append(final_path)
+
+                        offset += int(blocksize)
+                    else:
+                        sleep(5)
+
+                except Exception as e:
+                    self.s3.logger.error(
+                        "An error occured during prefetch process: %s", str(e)
                     )
 
-                    # only write to final path when data copy is complete
-                    tmp_path = os.path.join(path, f".{key}.{offset}.tmp")
-                    final_path = os.path.join(path, f"{key}.{offset}")
-                    self.s3.logger.debug("Prefetched data to %s", final_path)
-
-                    with open(tmp_path, "wb") as f:
-                        f.write(data)
-
-                    prefetch_space[path]["used"] += blocksize
-
-                    os.rename(tmp_path, final_path)
-                    fetched_paths.append(final_path)
-
-                    offset += int(blocksize)
-                else:
-                    sleep(5)
-
-            except Exception as e:
-                self.s3.logger.error(
-                    "An error occured during prefetch process: %s", str(e)
-                )
-
-            # if we have already read the entire file terminate prefetching
-            # can use walrus op here
-            if total_bytes <= offset and file_idx + 1 < total_files:
-                self.s3.logger.debug(
-                    "Prefetched all of file %s data. Moving onto next file %s",
-                    file_list[file_idx],
-                    file_list[file_idx + 1],
-                )
-                file_idx += 1
-                total_bytes = path_sizes[file_idx]
-                offset = 0
-            elif total_bytes <= offset:
-                self.fetch = False
-                self.s3.logger.debug("Prefetched all bytes")
-                break
+                # if we have already read the entire file terminate prefetching
+                # can use walrus op here
+                if total_bytes <= offset and file_idx + 1 < total_files:
+                    self.s3.logger.debug(
+                        "Prefetched all of file %s data. Moving onto next file %s",
+                        file_list[file_idx],
+                        file_list[file_idx + 1],
+                    )
+                    file_idx += 1
+                    total_bytes = path_sizes[file_idx]
+                    offset = 0
+                elif total_bytes <= offset:
+                    self.fetch = False
+                    self.s3.logger.debug("Prefetched all bytes")
+                    break
 
     # @profile
     def _fetch_prefetched(self, start, end):
