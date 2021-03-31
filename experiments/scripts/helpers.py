@@ -38,11 +38,11 @@ def benchmark(func):
             try:
                 with open(kwargs["bfile"], "a+") as f:
                     f.write(
-                        f"{func.__name__},{largs[0]},{start},{(end-start)*10**-9},{largs[1]},{largs[2]},{largs[3]}\n"
+                        f"{func.__name__},\"{largs[0]}\",{start},{(end-start)*10**-9},{largs[1]},{largs[2]},\"{largs[3]}\"\n"
                     )
             except Exception as e:
                 out_string = f"""
-                {func.__name__}\t{largs[0]}\t{start}\t{(end-start)*10**-9}\t{largs[1]}\t{largs[2]}\t{largs[3]}
+                {func.__name__}\t"{largs[0]}"\t{start}\t{(end-start)*10**-9}\t{largs[1]}\t{largs[2]}\t"{largs[3]}"
                 """
                 print(inspect.cleandoc(out_string))
 
