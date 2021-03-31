@@ -369,6 +369,8 @@ class S3PrefetchFile(S3File):
                     fetched_paths.append(final_path)
 
                     offset += int(blocksize)
+                else:
+                    sleep(5)
 
             except Exception as e:
                 self.s3.logger.error(
