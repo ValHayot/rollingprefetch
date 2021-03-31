@@ -169,7 +169,7 @@ def bench_storage():
 def bench_blocksize():
     reps = 5
     bsizes = [2**i for i in range(20, 32)]
-    output = "../results/us-west-2-xlarge/blocksize_s3fs.bench"
+    output = "../results/us-west-2-xlarge/blocksize_s3fs-read_size.bench"
     size = 2048*1024**2
 
     print(size)
@@ -187,10 +187,10 @@ def bench_blocksize():
             for f in fs:
                 if "s3fs" in f:
                     print("executing s3fs", r, size, b)
-                    bench_aws(size, r, output, block_size=b, read_size=b)
+                    bench_aws(size, r, output, block_size=b, read_size=b // 4)
                 else:
                     print("executing prefetch", r, size, b)
-                    bench_prefetch(size, r, output, block_size=b, read_size=b)
+                    bench_prefetch(size, r, output, block_size=b, read_size=b // 4)
 
 bench_blocksize()
 #bench_storage()

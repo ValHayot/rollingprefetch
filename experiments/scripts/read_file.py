@@ -23,11 +23,11 @@ def read_mem(path, lazy, bfile="read_file.bench"):
         read_trk(f, lazy, bfile=bfile)
 
 @helpers.benchmark
-def read_prefetched(path, lazy, block_size, prefetch_storage, bfile="read_file.bench"):
+def read_prefetched(path, lazy, block_size, prefetch_storage, bfile="read_file.bench", header_bytes=1000):
     helpers.drop_caches()
     fs = S3PrefetchFileSystem()
 
-    with fs.open(path, block_size=block_size, prefetch_storage=prefetch_storage) as f:
+    with fs.open(path, block_size=block_size, prefetch_storage=prefetch_storage, header_bytes=header_bytes) as f:
         read_trk(f, lazy, bfile=bfile)
 
 
@@ -36,24 +36,35 @@ def read_s3fs(path, lazy, block_size, bfile="read_file.bench"):
     helpers.drop_caches()
     fs = S3FileSystem()
 
-    with fs.open(path, block_size=block_size) as f:
-        read_trk(f, lazy, bfile=bfile)
+    if isinstance(path, str):
+        path = [path]
+
+    for p in path:
+        with fs.open(p, block_size=block_size) as f:
+            read_trk(f, lazy, bfile=bfile)
 
 
 def main():
 
-    prefetch_storage = [('/dev/shm', 5*1024**2)]
+    prefetch_storage = [('/dev/shm', 1*1024)]
     block_size = 64 * 2 ** 20
+    n_files = 20
 
-    infile = "hydi-tractography/hydi_tracks.12_58_7.trk" 
-    infile_mem = os.path.join("/dev/shm", os.path.basename(infile))
-    lazy=False
+    fs = S3FileSystem()
 
-    bfile="../results/us-west-2-xlarge/read_12_58_7.out"
+    header = ["vhs-bucket/hydi-header.trk"]
+    files = fs.glob("hydi-tractography/hydi_tracks.*.trk")[:n_files]
 
-    reps = 20
+    #infile = "hydi-tractography/hydi_tracks.12_58_7.trk" 
+    #infile_mem = os.path.join("/dev/shm", os.path.basename(infile))
+    lazy=True
 
-    types = ["mem", "prefetch", "s3fs"]
+    bfile="../results/us-west-2-xlarge/read_20f.out"
+
+    reps = 5
+
+    #types = ["mem", "prefetch", "s3fs"]
+    types = ["prefetch", "s3fs"]
 
     helpers.setup_bench(bfile)
     for _ in range(reps):
@@ -65,10 +76,12 @@ def main():
                 read_mem(infile_mem, lazy, bfile=bfile)
 
             elif t == "prefetch":
-                read_prefetched(infile, lazy, block_size, prefetch_storage, bfile=bfile)
+                print(t)
+                read_prefetched(header+files, lazy, block_size, prefetch_storage, bfile=bfile)
 
             else:
-                read_s3fs(infile, lazy, block_size, bfile=bfile)
+                print(t)
+                read_s3fs(files, lazy, block_size, bfile=bfile)
 
 
 if __name__=="__main__":

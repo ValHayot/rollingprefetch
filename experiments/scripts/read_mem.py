@@ -6,42 +6,58 @@ import helpers
 import os
 
 @helpers.benchmark
-def read_nib(path, lazy, bfile="read_file.bench"):
+def read_nib(paths, lazy, bfile="read_file.bench"):
     helpers.drop_caches()
-    with open(path, "rb") as f:
-        streamlines = TrkFile.load(f, lazy_load=lazy).streamlines
+
+    for path in paths:
+        with open(path, "rb") as f:
+            streamlines = TrkFile.load(f, lazy_load=lazy).streamlines
 
 
 @helpers.benchmark
-def read_mem(path, lazy, bfile="read_file.bench"):
+def read_mem(paths, lazy, bfile="read_file.bench"):
     helpers.drop_caches()
 
-    with open(path, "rb") as f:
-        out = f.read()
+    for path in paths:
+        with open(path, "rb") as f:
+            out = f.read()
 
 
 def main():
 
-    infile = "/dev/shm/hydi_tracks.12_58_7.trk" 
     lazy=False
 
-    bfile="../results/us-west-2-xlarge/readmem_12_58_7.out"
+    bfile="../results/us-west-2-xlarge/readmem.out"
 
     reps = 5
+    n_files = 5
 
     types = ["mem", "nib"]
+    fs = S3FileSystem()
+
+    all_paths = fs.glob("hydi-tractography/hydi*")
+    all_mem_paths = [os.path.join("/dev/shm", os.path.basename(p)) for p in all_paths]
 
     helpers.setup_bench(bfile)
     for _ in range(reps):
 
-        random.shuffle(types)
+        for i in range(1 ,n_files + 1):
+            paths = all_paths[0:f]
+            mem_paths = all_mem_paths[0:f]
 
-        for t in types:
-            if t == "mem": 
-                read_mem(infile, lazy, bfile=bfile)
+            fs.get(paths, mem_paths)
 
-            else:
-                read_nib(infile, lazy, bfile=bfile)
+            random.shuffle(types)
+
+            for t in types:
+                if t == "mem": 
+                    read_mem(mem_paths, lazy, bfile=bfile)
+
+                else:
+                    read_nib(paths, lazy, bfile=bfile)
+
+            for p in mem_path:
+                os.unlink(p)
 
 
 if __name__=="__main__":
