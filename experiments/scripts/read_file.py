@@ -48,7 +48,7 @@ def main():
 
     prefetch_storage = [('/dev/shm', 1*1024)]
     block_size = 64 * 2 ** 20
-    n_files = 20
+    n_files = 50
 
     fs = S3FileSystem()
 
@@ -59,7 +59,7 @@ def main():
     #infile_mem = os.path.join("/dev/shm", os.path.basename(infile))
     lazy=True
 
-    bfile="../results/us-west-2-xlarge/read_20f.out"
+    bfile="../results/us-west-2-xlarge/read_50f.out"
 
     reps = 5
 
