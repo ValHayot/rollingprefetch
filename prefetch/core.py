@@ -198,28 +198,6 @@ class S3PrefetchFile(S3File):
         self.cf_ = None
         self.s3.logger.debug("S3PrefetchFile initialization complete")
 
-    async def main(self):
-        loop = asyncio.get_running_loop()
-
-        with concurrent.futures.ProcessPoolExecutor() as pool:
-            await loop.run_in_executor(
-                pool,
-                self._prefetch,
-                *(
-                    deepcopy(self.s3),
-                    deepcopy(self.fs),
-                    deepcopy(self.file_list),
-                    deepcopy(self.prefetch_storage),
-                    deepcopy(self.path_sizes),
-                    self.blocksize,
-                    deepcopy(self.req_kw),
-                ),
-            )
-
-            await loop.run_in_executor(
-                pool, self._remove, deepcopy(self.prefetch_storage), self.DELETE_STR
-            )
-
     # @profile
     def close(self):
         self.s3.logger.debug("Closing S3PrefetchFile")
@@ -421,71 +399,29 @@ class S3PrefetchFile(S3File):
         while len(out) < total_read_len:
             self.s3.logger.debug("In _fetch_prefetched")
             block, pos = self._get_block()
-            # if block is not None:
-            #    try:
-            #        block.seek(start - self.b_start, 0)
-            #    except Exception as e:
-            #        print("could not seek", str(e))
-            #        pass
 
-            if block is None:
-                self.s3.logger.debug("block is none")
-                # if self.loc > 905969164:
-                #    print("block is none", self.loc, start, end)
-                # EOF error
-                try:
-                    if end < start:
-                        end += start
-                    self.s3.logger.debug(
-                        "Fetching data from position %d to %d directly from S3",
-                        start,
-                        end,
-                    )
-                    out += self._fetch_range(start, end)
-                except Exception as e:
-                    # if self.loc > 905969164:
-                    #    print("fetch_range_error", str(e))
-                    self.s3.logger.error(
-                        "Error with fetching data from S3 at position %d - %d: %s",
-                        start,
-                        end,
-                        str(e),
-                    )
-                    self.loc += len(out)
-                    return out
+            curr_pos = block.tell()
+            read_len = int(min(end, pos[1]) - curr_pos - pos[0])
+            self.s3.logger.debug(
+                "Reading data from cached block %s in range [%d, %d]",
+                block.name,
+                curr_pos,
+                curr_pos + read_len,
+            )
+            out += block.read(read_len)
+            self.loc += read_len
+            start = self.loc
 
-                self.loc += end - start
-                start = self.loc
-            else:
+            self.s3.logger.debug("Current position in block %d block size %d", start, pos[1])
 
-                self.s3.logger.debug("block is not none")
-                curr_pos = block.tell()
-                read_len = int(min(end, pos[1]) - curr_pos - pos[0])
+            if start >= pos[1]:
                 self.s3.logger.debug(
-                    "Reading data from cached block %s in range [%d, %d]",
+                    "Block %s read entirely (current position %d). Flagging for deletion",
                     block.name,
-                    curr_pos,
-                    curr_pos + read_len,
+                    self.loc,
                 )
-                # if self.loc > 905969164:
-                #    print("seek loc", start)
-                #    print(end, pos, block.tell(), read_len)
-                out += block.read(read_len)
-                # if self.loc > 905969164:
-                #    print("out", len(out), total_read_len)
-                self.loc += read_len
-                start = self.loc
-
-                self.s3.logger.debug("Current position in block %d block size %d", start, pos[1])
-
-                if start >= pos[1]:
-                    self.s3.logger.debug(
-                        "Block %s read entirely (current position %d). Flagging for deletion",
-                        block.name,
-                        self.loc,
-                    )
-                    block.close()
-                    os.rename(block.name, f"{block.name}{self.DELETE_STR}")
+                block.close()
+                os.rename(block.name, f"{block.name}{self.DELETE_STR}")
 
             if start >= self.path_sizes[self.file_idx] and self.file_idx + 1 < len(
                 self.file_list
@@ -509,7 +445,6 @@ class S3PrefetchFile(S3File):
                 start = self.loc
                 end = total_read_len - len(out) + self.loc
 
-        # print(total_read_len, len(out))
 
         return out
 
@@ -554,19 +489,13 @@ class S3PrefetchFile(S3File):
             self.s3.logger.warning("Was not able to close block. exception: %s", str(e))
 
         # Iterate through the cached files/offsets
+        # Possible infinite loop if file gets deleted before it's accessed
         while True :
             for f in cached_files:
-
-
                 try:
-                    #while os.path.exists(f".{f}.tmp"):
-                    #    sleep(0.005)
-
-                    # Get position of cached block relative to original file
                     b_start = int(f.split(".")[-1])
                     b_end = min(min(b_start + self.blocksize, self.path_sizes[self.file_idx]), self.size)
-                    # if self.loc > 905969164:
-                    #    print("curr file", f, b_start, b_end, self.loc)
+
                     self.s3.logger.debug(
                         "Position %d found in block %s with range [%d, %d]",
                         self.loc,
@@ -595,5 +524,3 @@ class S3PrefetchFile(S3File):
                 sleep(0.1)
 
         #self.s3.logger.error("Position %d not found in any cached block", self.loc)
-
-        return None, None
