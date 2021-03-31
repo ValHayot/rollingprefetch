@@ -316,7 +316,7 @@ class S3PrefetchFile(S3File):
 
         while self.fetch:
 
-            for path in prefetch_space.keys()
+            for path in prefetch_space.keys():
                 # NOTE: will use a bit of memory to read/write file. Need to warn user
                 # Prefetch to cache
 

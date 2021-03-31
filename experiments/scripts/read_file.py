@@ -48,7 +48,7 @@ def main():
 
     prefetch_storage = [('/dev/shm', 1*1024)]
     block_size = 64 * 2 ** 20
-    n_files = 50
+    n_files = 5
 
     fs = S3FileSystem()
 
@@ -57,9 +57,9 @@ def main():
 
     #infile = "hydi-tractography/hydi_tracks.12_58_7.trk" 
     #infile_mem = os.path.join("/dev/shm", os.path.basename(infile))
-    lazy=True
+    lazy=False
 
-    bfile="../results/us-west-2-xlarge/read_50f.out"
+    bfile="../results/us-west-2-xlarge/read_5f_nolazy.out"
 
     reps = 5
 
