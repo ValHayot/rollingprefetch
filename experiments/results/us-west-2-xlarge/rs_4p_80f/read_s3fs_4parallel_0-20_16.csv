@@ -1,0 +1,10 @@
+action,file,timestamp,runtime,lazy,blocksize,prefetch_storage
+read_trk,"<File-like object S3FileSystem, hydi-tractography/hydi_tracks.10_58_0.trk>",667712094254372,162.81139084,True,0,"[]"
+read_trk,"<File-like object S3FileSystem, hydi-tractography/hydi_tracks.10_58_1.trk>",667874919130648,218.224914941,True,0,"[]"
+read_trk,"<File-like object S3FileSystem, hydi-tractography/hydi_tracks.10_58_2.trk>",668093145401190,221.2641882,True,0,"[]"
+read_trk,"<File-like object S3FileSystem, hydi-tractography/hydi_tracks.10_58_3.trk>",668314410970631,109.603734759,True,0,"[]"
+read_trk,"<File-like object S3FileSystem, hydi-tractography/hydi_tracks.10_58_4.trk>",668424016183243,265.70582353000003,True,0,"[]"
+read_trk,"<File-like object S3FileSystem, hydi-tractography/hydi_tracks.10_58_5.trk>",668689726937650,173.388952944,True,0,"[]"
+read_trk,"<File-like object S3FileSystem, hydi-tractography/hydi_tracks.10_58_6.trk>",668863117320563,159.325887555,True,0,"[]"
+read_trk,"<File-like object S3FileSystem, hydi-tractography/hydi_tracks.10_58_7.trk>",669022445471519,260.401249614,True,0,"[]"
+read_s3fs,"['hydi-tractography/hydi_tracks.10_58_0.trk', 'hydi-tractography/hydi_tracks.10_58_1.trk', 'hydi-tractography/hydi_tracks.10_58_2.trk', 'hydi-tractography/hydi_tracks.10_58_3.trk', 'hydi-tractography/hydi_tracks.10_58_4.trk', 'hydi-tractography/hydi_tracks.10_58_5.trk', 'hydi-tractography/hydi_tracks.10_58_6.trk', 'hydi-tractography/hydi_tracks.10_58_7.trk', 'hydi-tractography/hydi_tracks.11_58_0.trk', 'hydi-tractography/hydi_tracks.11_58_1.trk', 'hydi-tractography/hydi_tracks.11_58_2.trk', 'hydi-tractography/hydi_tracks.11_58_3.trk', 'hydi-tractography/hydi_tracks.11_58_4.trk', 'hydi-tractography/hydi_tracks.11_58_5.trk', 'hydi-tractography/hydi_tracks.11_58_6.trk', 'hydi-tractography/hydi_tracks.11_58_7.trk', 'hydi-tractography/hydi_tracks.12_58_0.trk', 'hydi-tractography/hydi_tracks.12_58_1.trk', 'hydi-tractography/hydi_tracks.12_58_2.trk', 'hydi-tractography/hydi_tracks.12_58_3.trk']",667712093314330,1570.7538034850002,True,67108864,"[]"

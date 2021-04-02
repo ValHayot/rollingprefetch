@@ -1,0 +1,3 @@
+action,file,timestamp,runtime,lazy,blocksize,prefetch_storage
+read_trk,"<File-like object S3PrefetchFileSystem, hydi-tractography/hydi_tracks.10_58_0.trk>",556866427873664,40.930718001,True,0,"[]"
+read_prefetched,"['vhs-bucket/hydi-header.trk', 'hydi-tractography/hydi_tracks.10_58_0.trk', 'hydi-tractography/hydi_tracks.10_58_1.trk', 'hydi-tractography/hydi_tracks.10_58_2.trk', 'hydi-tractography/hydi_tracks.10_58_3.trk', 'hydi-tractography/hydi_tracks.10_58_4.trk', 'hydi-tractography/hydi_tracks.10_58_5.trk', 'hydi-tractography/hydi_tracks.10_58_6.trk', 'hydi-tractography/hydi_tracks.10_58_7.trk', 'hydi-tractography/hydi_tracks.11_58_0.trk', 'hydi-tractography/hydi_tracks.11_58_1.trk']",556863415496369,43.943332838,True,67108864,"[('/dev/shm', 1024)]"
