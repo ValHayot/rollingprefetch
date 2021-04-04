@@ -4,6 +4,7 @@ import subprocess as sp
 from os import getpid
 from time import perf_counter_ns
 from functools import wraps
+from nibabel.streamlines import TrkFile
 
 
 def setup_bench(file=None):
@@ -57,3 +58,11 @@ def drop_caches():
     print("STDOUT: ", out.stdout.decode("UTF-8"), end="")
     print("STDERR: ", out.stderr.decode("UTF-8"))
     print("** DROPPING CACHES COMPLETED **")
+
+
+def read_trk(f, lazy, bfile="read_file.bench"):
+    streamlines = TrkFile.load(f, lazy_load=lazy).streamlines
+
+    if lazy:
+        for stream in streamlines:
+            continue
