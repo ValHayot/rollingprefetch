@@ -11,8 +11,9 @@ import os
 
 @helpers.benchmark
 def read_mem(path, lazy, bfile="read_file.bench"):
-    with open(path, "rb") as f:
-        helpers.read_trk(f, lazy, bfile=bfile)
+    for p in path:
+        with open(path, "rb") as f:
+            helpers.read_trk(f, lazy, bfile=bfile)
 
 
 @helpers.benchmark
@@ -60,7 +61,7 @@ def read_s3fs(path, lazy, block_size, bfile="read_file.bench"):
 @click.option("--bfile", type=str, default="")
 def main(prefetch_storage, block_size, n_files, lazy, reps, types, bfile):
 
-    types = set(types)
+    types = list(types)
     header = ["vhs-bucket/hydi-header.trk"]
 
     fs = S3FileSystem()

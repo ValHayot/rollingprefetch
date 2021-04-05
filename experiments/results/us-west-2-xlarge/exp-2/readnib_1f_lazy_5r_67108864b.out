@@ -1,0 +1,11 @@
+action,file,timestamp,runtime,lazy,blocksize,prefetch_storage
+read_s3fs,"['hydi-tractography/hydi_tracks.10_58_0.trk']",5402215637128,52.912482902,True,67108864,"[]"
+read_prefetched,"['vhs-bucket/hydi-header.trk', 'hydi-tractography/hydi_tracks.10_58_0.trk']",5455551563653,43.507204372000004,True,67108864,"(('/dev/shm', 1024),)"
+read_prefetched,"['vhs-bucket/hydi-header.trk', 'hydi-tractography/hydi_tracks.10_58_0.trk']",5499536024138,43.760368109000005,True,67108864,"(('/dev/shm', 1024),)"
+read_s3fs,"['hydi-tractography/hydi_tracks.10_58_0.trk']",5543780171807,44.288623706,True,67108864,"[]"
+read_prefetched,"['vhs-bucket/hydi-header.trk', 'hydi-tractography/hydi_tracks.10_58_0.trk']",5588546593494,43.612701544000004,True,67108864,"(('/dev/shm', 1024),)"
+read_s3fs,"['hydi-tractography/hydi_tracks.10_58_0.trk']",5632640408329,46.863222295,True,67108864,"[]"
+read_s3fs,"['hydi-tractography/hydi_tracks.10_58_0.trk']",5679984004437,45.410975975,True,67108864,"[]"
+read_prefetched,"['vhs-bucket/hydi-header.trk', 'hydi-tractography/hydi_tracks.10_58_0.trk']",5725869465945,43.150750563,True,67108864,"(('/dev/shm', 1024),)"
+read_prefetched,"['vhs-bucket/hydi-header.trk', 'hydi-tractography/hydi_tracks.10_58_0.trk']",5769501201160,44.087719268,True,67108864,"(('/dev/shm', 1024),)"
+read_s3fs,"['hydi-tractography/hydi_tracks.10_58_0.trk']",5814073981172,43.560050868000005,True,67108864,"[]"
