@@ -12,7 +12,7 @@ import os
 @helpers.benchmark
 def read_mem(path, lazy, bfile="read_file.bench"):
     for p in path:
-        with open(path, "rb") as f:
+        with open(p, "rb") as f:
             helpers.read_trk(f, lazy, bfile=bfile)
 
 
