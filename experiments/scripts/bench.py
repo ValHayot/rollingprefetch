@@ -143,7 +143,7 @@ def create_header(output):
 def bench_storage():
     filesystems = ["aws", "local", "mem"]
     reps = 20
-    output = "../results/us-west-2-xlarge/filetransfer-latency.bench"
+    output = "../results/us-west-2-xlarge/filetransfer.bench"
     read_size=1024
     read_len=read_size * 20
 
@@ -156,6 +156,8 @@ def bench_storage():
 
             for fs in filesystems:
                 size = 2 ** i
+                read_size = size
+                read_len = size
 
                 if "aws" in fs:
                     print("executing aws", r, size)
