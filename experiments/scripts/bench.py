@@ -192,5 +192,5 @@ def bench_blocksize():
                     print("executing prefetch", r, size, b)
                     bench_prefetch(size, r, output, block_size=b, read_size=b // 4)
 
-bench_blocksize()
-#bench_storage()
+#bench_blocksize()
+bench_storage()
