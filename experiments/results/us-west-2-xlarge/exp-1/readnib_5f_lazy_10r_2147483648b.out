@@ -1,0 +1,4 @@
+action,file,timestamp,runtime,lazy,blocksize,prefetch_storage
+read_mem,"['/dev/shm/hydi_tracks.10_58_0.trk', '/dev/shm/hydi_tracks.10_58_1.trk', '/dev/shm/hydi_tracks.10_58_2.trk', '/dev/shm/hydi_tracks.10_58_3.trk', '/dev/shm/hydi_tracks.10_58_4.trk']",255316715785625,69.978380223,True,0,"[]"
+read_s3fs,"['hydi-tractography/hydi_tracks.10_58_0.trk', 'hydi-tractography/hydi_tracks.10_58_1.trk', 'hydi-tractography/hydi_tracks.10_58_2.trk', 'hydi-tractography/hydi_tracks.10_58_3.trk', 'hydi-tractography/hydi_tracks.10_58_4.trk']",255387513790753,173.52929625200002,True,2147483648,"[]"
+read_prefetched,"['vhs-bucket/hydi-header.trk', 'hydi-tractography/hydi_tracks.10_58_0.trk', 'hydi-tractography/hydi_tracks.10_58_1.trk', 'hydi-tractography/hydi_tracks.10_58_2.trk', 'hydi-tractography/hydi_tracks.10_58_3.trk', 'hydi-tractography/hydi_tracks.10_58_4.trk']",255561282372449,49.920938312000004,True,2147483648,"(('/dev/shm', 2048),)"

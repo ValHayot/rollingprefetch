@@ -29,8 +29,8 @@ then
 	#### Experiment 2 - Number of files
 	echo "Executing experiment 2"
 
-	python nib_read.py --n_files 1 --types prefetch --types s3fs --lazy --reps 10
-	python nib_read.py --n_files 5 --types prefetch --types s3fs --lazy --reps 10
+	python nib_read.py --n_files 1 --types mem --types prefetch --types s3fs --lazy --reps 10
+	python nib_read.py --n_files 5 --types mem --types prefetch --types s3fs --lazy --reps 10
 	python nib_read.py --n_files 10 --types prefetch --types s3fs --lazy --reps 10
 	python nib_read.py --n_files 15 --types prefetch --types s3fs --lazy --reps 10
 	python nib_read.py --n_files 20 --types prefetch --types s3fs --lazy --reps 10

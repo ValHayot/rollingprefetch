@@ -51,7 +51,7 @@ def read_s3fs(path, lazy, block_size, bfile="read_file.bench"):
     nargs=2,
     type=(str, int),
     multiple=True,
-    default=[("/dev/shm", 1024)],
+    default=[("/dev/shm", 2*1024)],
 )
 @click.option("--block_size", type=int, default=64 * 2 ** 20)
 @click.option("--n_files", type=int, default=5)
@@ -94,6 +94,9 @@ def main(prefetch_storage, block_size, n_files, lazy, reps, types, bfile):
                 fs.get(files, mem_files)
                 helpers.drop_caches()
                 read_mem(mem_files, lazy, bfile=bfile)
+
+                for p in mem_files:
+                    os.unlink(p)
 
             elif t == "prefetch":
                 read_prefetched(
