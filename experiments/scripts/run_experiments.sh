@@ -56,7 +56,7 @@ then
 	echo "Executing experiment 4"
 
 	fs=( "s3fs" "prefetch" )
-	for i in 1,5,10,15,20,25
+	for i in 1 5 10 15 20 25
 	do
 		for j in {0..10}
 		do
