@@ -433,6 +433,7 @@ class S3PrefetchFile(S3File):
                 #     self.loc,
                 # )
                 block.close()
+                self.cf_ = None
                 os.rename(block.name, f"{block.name}{self.DELETE_STR}")
 
             if start >= self.path_sizes[self.file_idx] and self.file_idx + 1 < len(
@@ -496,8 +497,10 @@ class S3PrefetchFile(S3File):
             return self.cf_, (self.b_start, self.b_end)
         try:
             self.cf_.close()
+            self.cf_ = None
         except Exception as e:
             # self.s3.logger.warning("Was not able to close block. exception: %s", str(e))
+            self.cf_ = None
             pass
 
         # Iterate through the cached files/offsets
