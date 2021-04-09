@@ -1,0 +1,2 @@
+action,file,timestamp,runtime,lazy,blocksize,prefetch_storage
+read_s3fs,"['hydi-tractography/hydi_tracks.10_58_0.trk', 'hydi-tractography/hydi_tracks.10_58_1.trk', 'hydi-tractography/hydi_tracks.10_58_2.trk', 'hydi-tractography/hydi_tracks.10_58_3.trk', 'hydi-tractography/hydi_tracks.10_58_4.trk', 'hydi-tractography/hydi_tracks.10_58_5.trk', 'hydi-tractography/hydi_tracks.10_58_6.trk', 'hydi-tractography/hydi_tracks.10_58_7.trk', 'hydi-tractography/hydi_tracks.11_58_0.trk', 'hydi-tractography/hydi_tracks.11_58_1.trk']",358589525077013,1848.392119051,True,67108864,"[]"
