@@ -1,0 +1,7 @@
+action,file,timestamp,runtime,lazy,blocksize,prefetch_storage
+segmentation_prefetch,"['vhs-bucket/hydi-header.trk', 'hydi-tractography/hydi_tracks.10_58_0.trk']",6580670716751,831.09875962,False,67108864,"(('/dev/shm', 2048),)"
+segmentation_s3fs,"['hydi-tractography/hydi_tracks.10_58_0.trk']",7412574946743,1362.101707874,False,67108864,"[]"
+segmentation_prefetch,"['vhs-bucket/hydi-header.trk', 'hydi-tractography/hydi_tracks.10_58_0.trk']",8775342088855,873.520163314,False,67108864,"(('/dev/shm', 2048),)"
+segmentation_s3fs,"['hydi-tractography/hydi_tracks.10_58_0.trk']",9649495097332,1347.8465155430001,False,67108864,"[]"
+segmentation_s3fs,"['hydi-tractography/hydi_tracks.10_58_0.trk']",10998048774556,1356.611337535,False,67108864,"[]"
+segmentation_prefetch,"['vhs-bucket/hydi-header.trk', 'hydi-tractography/hydi_tracks.10_58_0.trk']",12355346559410,850.3777381980001,False,67108864,"(('/dev/shm', 2048),)"
