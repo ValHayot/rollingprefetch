@@ -5,3 +5,7 @@ segmentation_prefetch,"['vhs-bucket/hydi-header.trk', 'hydi-tractography/hydi_tr
 segmentation_s3fs,"['hydi-tractography/hydi_tracks.10_58_0.trk']",9649495097332,1347.8465155430001,False,67108864,"[]"
 segmentation_s3fs,"['hydi-tractography/hydi_tracks.10_58_0.trk']",10998048774556,1356.611337535,False,67108864,"[]"
 segmentation_prefetch,"['vhs-bucket/hydi-header.trk', 'hydi-tractography/hydi_tracks.10_58_0.trk']",12355346559410,850.3777381980001,False,67108864,"(('/dev/shm', 2048),)"
+segmentation_s3fs,"['hydi-tractography/hydi_tracks.10_58_0.trk']",13206388878012,1341.8302814150002,False,67108864,"[]"
+segmentation_prefetch,"['vhs-bucket/hydi-header.trk', 'hydi-tractography/hydi_tracks.10_58_0.trk']",14548919773606,844.331145211,False,67108864,"(('/dev/shm', 2048),)"
+segmentation_prefetch,"['vhs-bucket/hydi-header.trk', 'hydi-tractography/hydi_tracks.10_58_0.trk']",15393879814937,837.8716956410001,False,67108864,"(('/dev/shm', 2048),)"
+segmentation_s3fs,"['hydi-tractography/hydi_tracks.10_58_0.trk']",16232460286236,1352.8105776500001,False,67108864,"[]"
