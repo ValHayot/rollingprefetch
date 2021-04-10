@@ -1,0 +1,127 @@
+LS_COLORS=rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=01;05;37;41:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=01;36:*.au=01;36:*.flac=01;36:*.m4a=01;36:*.mid=01;36:*.midi=01;36:*.mka=01;36:*.mp3=01;36:*.mpc=01;36:*.ogg=01;36:*.ra=01;36:*.wav=01;36:*.oga=01;36:*.opus=01;36:*.spx=01;36:*.xspf=01;36:
+LANG=en_CA.UTF-8
+SUDO_GID=1000
+HOSTNAME=ip-172-31-41-144.us-west-2.compute.internal
+SUDO_COMMAND=/bin/bash collect_environment.sh
+USER=USER
+PWD=/home/ec2-user/rollingprefetch/experiments/results/us-west-2-xlarge
+HOME=/USER
+SUDO_USER=ec2-user
+SUDO_UID=1000
+MAIL=/var/spool/mail/ec2-user
+SHELL=/bin/bash
+TERM=screen
+SHLVL=1
+LOGNAME=USER
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+HISTSIZE=1000
+_=/bin/env
+Linux ip-172-31-41-144.us-west-2.compute.internal 4.18.0-240.15.1.el8_3.x86_64 #1 SMP Wed Feb 3 03:12:15 EST 2021 x86_64 x86_64 x86_64 GNU/Linux
+Architecture:        x86_64
+CPU op-mode(s):      32-bit, 64-bit
+Byte Order:          Little Endian
+CPU(s):              4
+On-line CPU(s) list: 0-3
+Thread(s) per core:  1
+Core(s) per socket:  4
+Socket(s):           1
+NUMA node(s):        1
+Vendor ID:           GenuineIntel
+CPU family:          6
+Model:               79
+Model name:          Intel(R) Xeon(R) CPU E5-2686 v4 @ 2.30GHz
+Stepping:            1
+CPU MHz:             2299.918
+BogoMIPS:            4600.10
+Hypervisor vendor:   Xen
+Virtualization type: full
+L1d cache:           32K
+L1i cache:           32K
+L2 cache:            256K
+L3 cache:            46080K
+NUMA node0 CPU(s):   0-3
+Flags:               fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx pdpe1gb rdtscp lm constant_tsc rep_good nopl xtopology cpuid pni pclmulqdq ssse3 fma cx16 pcid sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand hypervisor lahf_lm abm cpuid_fault invpcid_single pti fsgsbase bmi1 avx2 smep bmi2 erms invpcid xsaveopt
+MemTotal:       16211408 kB
+MemFree:        15683584 kB
+MemAvailable:   15688888 kB
+Buffers:               0 kB
+Cached:           287676 kB
+SwapCached:            0 kB
+Active:           147856 kB
+Inactive:         202784 kB
+Active(anon):      63260 kB
+Inactive(anon):    50800 kB
+Active(file):      84596 kB
+Inactive(file):   151984 kB
+Unevictable:           0 kB
+Mlocked:               0 kB
+SwapTotal:             0 kB
+SwapFree:              0 kB
+Dirty:                20 kB
+Writeback:             0 kB
+AnonPages:         62988 kB
+Mapped:           107484 kB
+Shmem:             51096 kB
+KReclaimable:      36676 kB
+Slab:             110624 kB
+SReclaimable:      36676 kB
+SUnreclaim:        73948 kB
+KernelStack:        2336 kB
+PageTables:         6284 kB
+NFS_Unstable:          0 kB
+Bounce:                0 kB
+WritebackTmp:          0 kB
+CommitLimit:     8105704 kB
+Committed_AS:     334076 kB
+VmallocTotal:   34359738367 kB
+VmallocUsed:           0 kB
+VmallocChunk:          0 kB
+Percpu:             7808 kB
+HardwareCorrupted:     0 kB
+AnonHugePages:      6144 kB
+ShmemHugePages:        0 kB
+ShmemPmdMapped:        0 kB
+HugePages_Total:       0
+HugePages_Free:        0
+HugePages_Rsvd:        0
+HugePages_Surp:        0
+Hugepagesize:       2048 kB
+Hugetlb:               0 kB
+DirectMap4k:      102400 kB
+DirectMap2M:     6189056 kB
+DirectMap1G:    11534336 kB
+NAME    MAJ:MIN RM SIZE RO TYPE MOUNTPOINT
+xvda    202:0    0  30G  0 disk 
+├─xvda1 202:1    0   1M  0 part 
+└─xvda2 202:2    0  30G  0 part /
+H/W path    Device    Class          Description
+================================================
+                      system         HVM domU
+/0                    bus            Motherboard
+/0/0                  memory         96KiB BIOS
+/0/401                processor      Intel(R) Xeon(R) CPU E5-2686 v4 @ 2.30GHz
+/0/402                processor      CPU
+/0/403                processor      CPU
+/0/404                processor      CPU
+/0/1000               memory         16GiB System Memory
+/0/1000/0             memory         16GiB DIMM RAM
+/0/100                bridge         440FX - 82441FX PMC [Natoma]
+/0/100/1              bridge         82371SB PIIX3 ISA [Natoma/Triton II]
+/0/100/1/0            system         PnP device PNP0c02
+/0/100/1/1            system         PnP device PNP0c02
+/0/100/1/2            system         PnP device PNP0b00
+/0/100/1/3            input          PnP device PNP0f13
+/0/100/1/4            input          PnP device PNP0303
+/0/100/1/5            storage        PnP device PNP0700
+/0/100/1/6            communication  PnP device PNP0501
+/0/100/1/7            system         PnP device PNP0c02
+/0/100/1.1            storage        82371SB PIIX3 IDE [Natoma/Triton II]
+/0/100/1.3            bridge         82371AB/EB/MB PIIX4 ACPI
+/0/100/2    /dev/fb0  display        GD 5446
+/0/100/3              generic        Xen Platform Device
+/1          input0    input          Power Button
+/2          input1    input          Sleep Button
+/3          input2    input          AT Translated Set 2 keyboard
+/4          input4    input          ImExPS/2 Generic Explorer Mouse
+/5          input5    input          PC Speaker
+/6          eth0      network        Ethernet interface
