@@ -2,7 +2,7 @@
 import click
 import helpers
 import random
-from os import path as op
+from os import path as op, system
 from s3fs import S3FileSystem
 from prefetch.core import S3PrefetchFileSystem
 
@@ -25,7 +25,7 @@ def setup():
     return MNI_T2_img, img, mapping, bundles
 
 def segmentation(bundles, sft, mapping, MNI_T2_img):
-    segmentation = seg.Segmentation(return_idx=True)
+    segmentation = seg.Segmentation(return_idx=True) #, parallel_segmentation={"engine": "serial"})
     segmentation.segment(bundles,
                          sft,
                          fdata="dwi.nii",
@@ -45,8 +45,9 @@ def segmentation_prefetch(path, lazy, block_size, prefetch_storage, bfile="real.
     fs = S3PrefetchFileSystem()
     fs.invalidate_cache()
 
-    with fs.open(path, block_size=block_size, prefetch_storage=prefetch_storage) as f:
-        tractogram_obj = nib.streamlines.load(f, lazy_load=True).tractogram
+    with fs.open(path, block_size=block_size, prefetch_storage=prefetch_storage, header_bytes=1000) as f:
+        tractogram_obj = nib.streamlines.load(f, lazy_load=lazy).tractogram
+        print("Done reading")
         streamlines = tractogram_obj.streamlines
         data_per_point = tractogram_obj.data_per_point
         data_per_streamline = tractogram_obj.data_per_streamline
@@ -56,7 +57,7 @@ def segmentation_prefetch(path, lazy, block_size, prefetch_storage, bfile="real.
                                      data_per_point=data_per_point,
                                      data_per_streamline=data_per_streamline)
 
-    fiber_groups = segmentation(bundles, sft, mapping, MNI_T2_img)
+        fiber_groups = segmentation(bundles, sft, mapping, MNI_T2_img)
 
 
 @helpers.benchmark
@@ -117,6 +118,8 @@ def main(prefetch_storage, block_size, n_files, reps, types):
                 segmentation_s3fs(files, False, block_size, bfile=bfile)
             else:
                 segmentation_prefetch(header + files, False, block_size, prefetch_storage, bfile=bfile)
+
+            system("pkill -f joblib")
 
 
 if __name__=="__main__":
