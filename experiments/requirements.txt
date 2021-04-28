@@ -43,8 +43,6 @@ mock==4.0.3
 multidict==5.1.0
 mypy-extensions==0.4.3
 networkx==2.5.1
-# Editable install with no version control (nibabel==3.2.1)
--e /home/ec2-user/venv/rp/lib/python3.9/site-packages
 nose==1.3.7
 num2words==0.5.10
 numpy==1.19.5
