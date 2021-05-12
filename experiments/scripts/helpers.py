@@ -32,6 +32,7 @@ def benchmark(func):
         if len(largs) == 3:
             largs.append([])
 
+
         try:
             return func(*args, **kwargs)
         finally:
