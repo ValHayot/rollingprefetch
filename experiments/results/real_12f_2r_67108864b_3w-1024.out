@@ -1,0 +1,43 @@
+action,file,timestamp,runtime,lazy,blocksize,prefetch_storage
+read_s3fs,hydi-tractography/hydi_tracks.11_58_0.trk,1235741592423715,64119181975,False,67108864,
+read_s3fs,hydi-tractography/hydi_tracks.10_58_0.trk,1235738542646986,73007986270,False,67108864,
+read_s3fs,hydi-tractography/hydi_tracks.10_58_4.trk,1235739824220576,91987918839,False,67108864,
+read_s3fs,hydi-tractography/hydi_tracks.11_58_1.trk,1237076437243644,143155358284,False,67108864,
+read_s3fs,hydi-tractography/hydi_tracks.10_58_1.trk,1238359417181801,117961537067,False,67108864,
+read_s3fs,hydi-tractography/hydi_tracks.10_58_5.trk,1238767679989267,103334631614,False,67108864,
+read_s3fs,hydi-tractography/hydi_tracks.11_58_2.trk,1239740015609290,92686512252,False,67108864,
+read_s3fs,hydi-tractography/hydi_tracks.10_58_2.trk,1239848953140938,101893114615,False,67108864,
+read_s3fs,hydi-tractography/hydi_tracks.10_58_6.trk,1241524145652372,119785271655,False,67108864,
+read_s3fs,hydi-tractography/hydi_tracks.10_58_7.trk,1243218740588272,92786682829,False,67108864,
+read_s3fs,hydi-tractography/hydi_tracks.11_58_3.trk,1243277290988572,71963701218,False,67108864,
+read_s3fs,hydi-tractography/hydi_tracks.10_58_3.trk,1243535878472790,71593332104,False,67108864,
+segmentation_s3fs,"['hydi-tractography/hydi_tracks.11_58_0.trk', 'hydi-tractography/hydi_tracks.11_58_1.trk', 'hydi-tractography/hydi_tracks.11_58_2.trk', 'hydi-tractography/hydi_tracks.11_58_3.trk']",1235677969067925,8298.558101923001,False,67108864,"[]"
+segmentation_s3fs,"['hydi-tractography/hydi_tracks.10_58_0.trk', 'hydi-tractography/hydi_tracks.10_58_1.trk', 'hydi-tractography/hydi_tracks.10_58_2.trk', 'hydi-tractography/hydi_tracks.10_58_3.trk']",1235677961334760,8707.991667285001,False,67108864,"[]"
+segmentation_s3fs,"['hydi-tractography/hydi_tracks.10_58_4.trk', 'hydi-tractography/hydi_tracks.10_58_5.trk', 'hydi-tractography/hydi_tracks.10_58_6.trk', 'hydi-tractography/hydi_tracks.10_58_7.trk']",1235677968929213,9579.584833091001,False,67108864,"[]"
+read_prefetch,['vhs-bucket/hydi-header.trk', 'hydi-tractography/hydi_tracks.10_58_0.trk', 'hydi-tractography/hydi_tracks.10_58_1.trk', 'hydi-tractography/hydi_tracks.10_58_2.trk', 'hydi-tractography/hydi_tracks.10_58_3.trk'],1245320476646257,275820824512,False,67108864,(('/dev/shm', 1024),)
+read_prefetch,['vhs-bucket/hydi-header.trk', 'hydi-tractography/hydi_tracks.10_58_4.trk', 'hydi-tractography/hydi_tracks.10_58_5.trk', 'hydi-tractography/hydi_tracks.10_58_6.trk', 'hydi-tractography/hydi_tracks.10_58_7.trk'],1245319204572107,277293364154,False,67108864,(('/dev/shm', 1024),)
+read_prefetch,['vhs-bucket/hydi-header.trk', 'hydi-tractography/hydi_tracks.11_58_0.trk', 'hydi-tractography/hydi_tracks.11_58_1.trk', 'hydi-tractography/hydi_tracks.11_58_2.trk', 'hydi-tractography/hydi_tracks.11_58_3.trk'],1245325060929988,279635677315,False,67108864,(('/dev/shm', 1024),)
+segmentation_prefetch,"['vhs-bucket/hydi-header.trk', 'hydi-tractography/hydi_tracks.11_58_0.trk', 'hydi-tractography/hydi_tracks.11_58_1.trk', 'hydi-tractography/hydi_tracks.11_58_2.trk', 'hydi-tractography/hydi_tracks.11_58_3.trk']",1245258979095940,8996.454555737,False,67108864,"(('/dev/shm', 1024),)"
+segmentation_prefetch,"['vhs-bucket/hydi-header.trk', 'hydi-tractography/hydi_tracks.10_58_0.trk', 'hydi-tractography/hydi_tracks.10_58_1.trk', 'hydi-tractography/hydi_tracks.10_58_2.trk', 'hydi-tractography/hydi_tracks.10_58_3.trk']",1245258969526433,9145.035682563,False,67108864,"(('/dev/shm', 1024),)"
+segmentation_prefetch,"['vhs-bucket/hydi-header.trk', 'hydi-tractography/hydi_tracks.10_58_4.trk', 'hydi-tractography/hydi_tracks.10_58_5.trk', 'hydi-tractography/hydi_tracks.10_58_6.trk', 'hydi-tractography/hydi_tracks.10_58_7.trk']",1245258979346233,10006.738200785001,False,67108864,"(('/dev/shm', 1024),)"
+read_s3fs,hydi-tractography/hydi_tracks.11_58_0.trk,1255330314703057,64932238312,False,67108864,
+read_s3fs,hydi-tractography/hydi_tracks.10_58_0.trk,1255332868917516,72380761065,False,67108864,
+read_s3fs,hydi-tractography/hydi_tracks.10_58_4.trk,1255335967621374,89195260272,False,67108864,
+read_s3fs,hydi-tractography/hydi_tracks.11_58_1.trk,1256673229129976,151960866453,False,67108864,
+read_s3fs,hydi-tractography/hydi_tracks.10_58_1.trk,1257916895386990,117411943251,False,67108864,
+read_s3fs,hydi-tractography/hydi_tracks.10_58_5.trk,1258326633957587,109730436825,False,67108864,
+read_s3fs,hydi-tractography/hydi_tracks.11_58_2.trk,1259294051078831,101529197349,False,67108864,
+read_s3fs,hydi-tractography/hydi_tracks.10_58_2.trk,1259376281314675,104383616244,False,67108864,
+read_s3fs,hydi-tractography/hydi_tracks.10_58_6.trk,1261049028190318,133652974941,False,67108864,
+read_s3fs,hydi-tractography/hydi_tracks.10_58_7.trk,1262756590391962,125674768263,False,67108864,
+read_s3fs,hydi-tractography/hydi_tracks.11_58_3.trk,1262827937103106,92515071246,False,67108864,
+read_s3fs,hydi-tractography/hydi_tracks.10_58_3.trk,1263015336039407,93091997788,False,67108864,
+segmentation_s3fs,"['hydi-tractography/hydi_tracks.11_58_0.trk', 'hydi-tractography/hydi_tracks.11_58_1.trk', 'hydi-tractography/hydi_tracks.11_58_2.trk', 'hydi-tractography/hydi_tracks.11_58_3.trk']",1255267221896696,8267.776768683001,False,67108864,"[]"
+segmentation_s3fs,"['hydi-tractography/hydi_tracks.10_58_0.trk', 'hydi-tractography/hydi_tracks.10_58_1.trk', 'hydi-tractography/hydi_tracks.10_58_2.trk', 'hydi-tractography/hydi_tracks.10_58_3.trk']",1255267220979235,8615.76533919,False,67108864,"[]"
+segmentation_s3fs,"['hydi-tractography/hydi_tracks.10_58_4.trk', 'hydi-tractography/hydi_tracks.10_58_5.trk', 'hydi-tractography/hydi_tracks.10_58_6.trk', 'hydi-tractography/hydi_tracks.10_58_7.trk']",1255267221650943,9537.554580054,False,67108864,"[]"
+read_prefetch,['vhs-bucket/hydi-header.trk', 'hydi-tractography/hydi_tracks.10_58_0.trk', 'hydi-tractography/hydi_tracks.10_58_1.trk', 'hydi-tractography/hydi_tracks.10_58_2.trk', 'hydi-tractography/hydi_tracks.10_58_3.trk'],1264867884566161,284216831162,False,67108864,(('/dev/shm', 1024),)
+read_prefetch,['vhs-bucket/hydi-header.trk', 'hydi-tractography/hydi_tracks.11_58_0.trk', 'hydi-tractography/hydi_tracks.11_58_1.trk', 'hydi-tractography/hydi_tracks.11_58_2.trk', 'hydi-tractography/hydi_tracks.11_58_3.trk'],1264870497766596,291070909016,False,67108864,(('/dev/shm', 1024),)
+read_prefetch,['vhs-bucket/hydi-header.trk', 'hydi-tractography/hydi_tracks.10_58_4.trk', 'hydi-tractography/hydi_tracks.10_58_5.trk', 'hydi-tractography/hydi_tracks.10_58_6.trk', 'hydi-tractography/hydi_tracks.10_58_7.trk'],1264871467099584,312293796588,False,67108864,(('/dev/shm', 1024),)
+segmentation_prefetch,"['vhs-bucket/hydi-header.trk', 'hydi-tractography/hydi_tracks.11_58_0.trk', 'hydi-tractography/hydi_tracks.11_58_1.trk', 'hydi-tractography/hydi_tracks.11_58_2.trk', 'hydi-tractography/hydi_tracks.11_58_3.trk']",1264806161885446,8815.076889239,False,67108864,"(('/dev/shm', 1024),)"
+segmentation_prefetch,"['vhs-bucket/hydi-header.trk', 'hydi-tractography/hydi_tracks.10_58_0.trk', 'hydi-tractography/hydi_tracks.10_58_1.trk', 'hydi-tractography/hydi_tracks.10_58_2.trk', 'hydi-tractography/hydi_tracks.10_58_3.trk']",1264806153971575,9009.473153166,False,67108864,"(('/dev/shm', 1024),)"
+segmentation_prefetch,"['vhs-bucket/hydi-header.trk', 'hydi-tractography/hydi_tracks.10_58_4.trk', 'hydi-tractography/hydi_tracks.10_58_5.trk', 'hydi-tractography/hydi_tracks.10_58_6.trk', 'hydi-tractography/hydi_tracks.10_58_7.trk']",1264806161581822,9988.931444903,False,67108864,"(('/dev/shm', 1024),)"

@@ -1,0 +1,5 @@
+action,file,timestamp,runtime,lazy,blocksize,prefetch_storage
+read_s3fs,hydi-tractography/hydi_tracks.10_58_0.trk,566338577237112,90624590568,False,67108864,
+segmentation_s3fs,"['hydi-tractography/hydi_tracks.10_58_0.trk']",566276071080021,2401.300073373,False,67108864,"[]"
+read_prefetch,['vhs-bucket/hydi-header.trk', 'hydi-tractography/hydi_tracks.10_58_0.trk'],568735430219010,66829611518,False,67108864,(('/dev/shm', 1024),)
+segmentation_prefetch,"['vhs-bucket/hydi-header.trk', 'hydi-tractography/hydi_tracks.10_58_0.trk']",568678864068180,2426.089204631,False,67108864,"(('/dev/shm', 1024),)"
