@@ -257,6 +257,7 @@ class S3PrefetchFile(S3File):
         if self.global_pos + self.loc - self.header_bytes >= self.size:
             return b""
 
+        #print("read", self.loc, length)
         out = self._fetch_prefetched(self.loc, self.loc + length)
 
         return out
@@ -264,10 +265,11 @@ class S3PrefetchFile(S3File):
     def _remove(self, prefetch_storage, path_sizes, blocksize, file_list, DELETE_STR):
         # self.s3.logger.debug("Removing files in cache with extension %s", DELETE_STR)
 
+        header_bytes = self.header_bytes
         pf_dirs = [p[0] for p in prefetch_storage]
-        file_keys = [f.split("/")[1] for f in file_list]
+        file_keys = [f.split("/")[-1] for f in file_list]
         block_ids = [
-            f"{file_keys[i]}.{int(j*blocksize)}{DELETE_STR}"
+            f"{file_keys[i]}.{int(j*blocksize + (0 if i == 0 else header_bytes))}{DELETE_STR}"
             for i in range(len(file_keys))
             for j in range(int(path_sizes[i] // blocksize) + 1)
         ]
@@ -287,7 +289,7 @@ class S3PrefetchFile(S3File):
             block_ids = deepcopy(updated_list)
 
         while self.fetch:
-            sleep(5)
+            sleep(1)
             evict(block_ids, pf_dirs, updated_list)
 
         evict(block_ids, pf_dirs, updated_list)
@@ -304,6 +306,7 @@ class S3PrefetchFile(S3File):
         file_idx = 0
         total_bytes = path_sizes[file_idx]
         total_files = len(file_list)
+        header_bytes = self.header_bytes
 
         prefetch_space = {
             path: {"total": space * 1024 ** 2, "used": 0}
@@ -319,7 +322,7 @@ class S3PrefetchFile(S3File):
                 avail_cache = disk_usage(path).free
                 prefetch_space[path]["total"] = avail_cache
 
-        while self.fetch:
+        while self.fetch and file_idx < len(path_sizes) and total_bytes > offset:
 
             for path in prefetch_space.keys():
                 # NOTE: will use a bit of memory to read/write file. Need to warn user
@@ -352,6 +355,11 @@ class S3PrefetchFile(S3File):
                             fetched_paths = fetched_paths[i:]
 
                     if avail_space >= blocksize:
+                        fetch_end = offset + blocksize
+
+                        if fetch_end > path_sizes[file_idx]:
+                            fetch_end = path_sizes[file_idx]
+                        #print("fetch_start", offset, "fetch_end", fetch_end)
 
                         bucket, key, version_id = s3.split_path(file_list[file_idx])
                         data = _fetch_range(
@@ -364,9 +372,12 @@ class S3PrefetchFile(S3File):
                             req_kw=req_kw,
                         )
 
+                        # no need to keep organizational structure of key in cache
+                        obj_name = os.path.basename(key)
                         # only write to final path when data copy is complete
-                        tmp_path = os.path.join(path, f".{key}.{offset}.tmp")
-                        final_path = os.path.join(path, f"{key}.{offset}")
+                        tmp_path = os.path.join(path, f".{obj_name}.{offset}.tmp")
+                        final_path = os.path.join(path, f"{obj_name}.{offset}")
+                        #print(final_path)
                         # self.s3.logger.debug("Prefetched data to %s", final_path)
 
                         with open(tmp_path, "wb") as f:
@@ -379,13 +390,14 @@ class S3PrefetchFile(S3File):
 
                         offset += int(blocksize)
                     else:
-                        sleep(5)
+                        sleep(1)
 
                 except Exception as e:
                     # self.s3.logger.error(
                     #     "An error occured during prefetch process: %s", str(e)
                     # )
-                    pass
+                    #pass
+                    print(str(e))
 
                 # if we have already read the entire file terminate prefetching
                 # can use walrus op here
@@ -397,7 +409,7 @@ class S3PrefetchFile(S3File):
                     # )
                     file_idx += 1
                     total_bytes = path_sizes[file_idx]
-                    offset = 0
+                    offset = header_bytes
                 elif total_bytes <= offset:
                     # self.fetch = False
                     # self.s3.logger.debug("Prefetched all bytes")
@@ -408,12 +420,17 @@ class S3PrefetchFile(S3File):
         total_read_len = end - start
         out = b""
 
+        #print("len out", len(out), total_read_len)
+
         while len(out) < total_read_len:
+            #print(start, end, len(out), total_read_len)
             # self.s3.logger.debug("In _fetch_prefetched")
             block, pos = self._get_block()
+            #print("got block")
 
             curr_pos = block.tell()
-            read_len = int(min(end, pos[1]) - curr_pos - pos[0])
+            read_len = int(min(end, pos[1]) - curr_pos -  pos[0])
+            #print("block", block.name, curr_pos, read_len, start, end)
             # self.s3.logger.debug(
             #     "Reading data from cached block %s in range [%d, %d]",
             #     block.name,
@@ -436,6 +453,7 @@ class S3PrefetchFile(S3File):
                 self.cf_ = None
                 os.rename(block.name, f"{block.name}{self.DELETE_STR}")
 
+            #print(len(out), total_read_len, start, self.path_sizes[self.file_idx], self.file_idx, len(self.file_list))
             if start >= self.path_sizes[self.file_idx] and self.file_idx + 1 < len(
                 self.file_list
             ):
@@ -457,7 +475,12 @@ class S3PrefetchFile(S3File):
                 self.loc = self.header_bytes
                 start = self.loc
                 end = total_read_len - len(out) + self.loc
+                #print("new file start", start, "end", end)
 
+        #if self.file_idx == 2 and end == 1004:
+        #    print(out)
+        #    import sys
+        #    sys.exit(1)
         return out
 
     # @profile
@@ -476,12 +499,12 @@ class S3PrefetchFile(S3File):
 
         pf_dirs = [p[0] for p in self.prefetch_storage]
         bid = [
-            i * int(self.blocksize)
+            (i * int(self.blocksize)) + (self.header_bytes if self.file_idx > 0 else 0)
             for i in range(0, int(self.path_sizes[self.file_idx] // self.blocksize) + 1)
             if self.loc - self.blocksize < i * self.blocksize
         ][0]
         # self.s3.logger.debug("in get_block %d", max([ i for i in range(0, self.path_sizes[self.file_idx] + 1, self.blocksize)]))
-        cached_files = [os.path.join(fs, f"{self.key}.{bid}") for fs in pf_dirs]
+        cached_files = [os.path.join(fs, f"{os.path.basename(self.key)}.{bid}") for fs in pf_dirs]
 
         # self.s3.logger.debug("looking for %s", cached_files[0])
 
@@ -525,8 +548,7 @@ class S3PrefetchFile(S3File):
                     self.cf_ = open(f, "rb")
                     self.b_start = b_start
                     self.b_end = b_end
-                    c_offset = self.loc - self.b_start
-                    self.cf_.seek(c_offset, os.SEEK_SET)
+                    #self.cf_.seek(b_start, os.SEEK_SET)
                     return self.cf_, (self.b_start, self.b_end)
                 except Exception as e:
                     # self.s3.logger.warning(
