@@ -268,7 +268,8 @@ def main(
     makedirs(results_path, exist_ok=True)
 
     bfile = op.join(
-        results_path, f"segmentation_{alg}_{n_files}f_{reps}r_{block_size}b.out"
+        results_path,
+        f"segmentation_{file_type}_{alg}_{n_files}f_{reps}r_{block_size}b.out",
     )
 
     helpers.setup_bench(bfile)
