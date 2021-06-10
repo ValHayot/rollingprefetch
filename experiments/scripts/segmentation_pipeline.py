@@ -28,11 +28,7 @@ def seg_setup(alg):
         bundles = api.make_bundle_dict(
             bundle_names=[
                 "CST",
-                "UF",
-                "CC_ForcepsMajor",
-                "CC_ForcepsMinor",
-                "OR",
-                "VOF",
+                "ARC",
             ],
             resample_to=MNI_T2_img,
         )  # CST ARC
@@ -299,7 +295,7 @@ def main(
         client = Client(cluster)
 
     for r in range(reps):
-        random.shuffle(types)
+        # random.shuffle(types)
         for t in types:
             print(t)
             helpers.drop_caches()
