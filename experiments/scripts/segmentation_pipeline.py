@@ -4,7 +4,7 @@ import click
 import helpers
 import random
 from time import perf_counter_ns
-from os import path as op, system
+from os import path as op, system, makedirs
 from s3fs import S3FileSystem
 from prefetch.core import S3PrefetchFileSystem
 from dask.distributed import Client, LocalCluster
@@ -220,6 +220,7 @@ def segmentation_s3fs(
 
 
 @click.command()
+@click.option("--file_type", click.Choice(["orig", "shards"]))
 @click.option(
     "--prefetch_storage",
     nargs=2,
@@ -236,7 +237,9 @@ def segmentation_s3fs(
 @click.option("--dask", type=bool, default=False)
 @click.option("--nworkers", type=int, default=1)
 @click.option("--njobs", type=int, default=-1)
+@click.option("--instance", type=str, default="us-west-2-R5.4xlarge")
 def main(
+    file_type,
     prefetch_storage,
     block_size,
     n_files,
@@ -247,15 +250,22 @@ def main(
     dask,
     nworkers,
     njobs,
+    instance,
 ):
 
     types = list(types)
-    header = ["vhs-bucket/hydi-header.trk"]
 
     fs = S3FileSystem()
-    files = fs.glob("hydi-tractography/hydi_tracks.*.trk")[:n_files]
+    if file_type == "orig":
+        header = ["vhs-bucket/hydi-header.trk"]
+        files = fs.glob("hydi-tractography/hydi_tracks.*.trk")[:n_files]
+    else:
+        header = ["vhs-bucket/shards/hydi_shard_header.trk"]
+        files = fs.glob("vhs-bucket/shards/hydi_tracks.*.trk")[:n_files]
 
-    results_path = "../results/us-west-2-xlarge/"
+    results_path = op.join("../results/", instance)
+
+    makedirs(results_path, exist_ok=True)
 
     bfile = op.join(
         results_path, f"segmentation_{alg}_{n_files}f_{reps}r_{block_size}b.out"
