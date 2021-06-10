@@ -220,7 +220,7 @@ def segmentation_s3fs(
 
 
 @click.command()
-@click.option("--file_type", click.Choice(["orig", "shards"]))
+@click.option("--file_type", type=click.Choice(["orig", "shards"]))
 @click.option(
     "--prefetch_storage",
     nargs=2,
