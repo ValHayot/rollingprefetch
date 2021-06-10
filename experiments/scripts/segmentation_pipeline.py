@@ -19,16 +19,36 @@ import nibabel as nib
 import numpy as np
 
 
-def seg_setup():
+def seg_setup(alg):
     MNI_T2_img = afd.read_mni_template()
     img = nib.load("dwi.nii")
     mapping = reg.read_mapping("mapping.nii.gz", img, MNI_T2_img)
 
-    bundles = api.make_bundle_dict(
-        bundle_names=["CST", "UF", "CC_ForcepsMajor", "CC_ForcepsMinor", "OR", "VOF"],
-        seg_algo="reco80",
-        resample_to=MNI_T2_img,
-    )  # CST ARC
+    if alg == "waypoint":
+        bundles = api.make_bundle_dict(
+            bundle_names=[
+                "CST",
+                "UF",
+                "CC_ForcepsMajor",
+                "CC_ForcepsMinor",
+                "OR",
+                "VOF",
+            ],
+            resample_to=MNI_T2_img,
+        )  # CST ARC
+    else:
+        bundles = api.make_bundle_dict(
+            bundle_names=[
+                "CST",
+                "UF",
+                "CC_ForcepsMajor",
+                "CC_ForcepsMinor",
+                "OR",
+                "VOF",
+            ],
+            seg_algo="reco80",
+            resample_to=MNI_T2_img,
+        )  # CST ARC
 
     return {
         "MNI_T2_img": MNI_T2_img,
