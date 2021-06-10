@@ -125,7 +125,7 @@ def segmentation_prefetch(
 ):
 
     print("In prefetch", path)
-    data = seg_setup()
+    data = seg_setup(alg)
 
     fs = S3PrefetchFileSystem()
     fs.invalidate_cache()
@@ -186,7 +186,7 @@ def segmentation_s3fs(
 ):
     print("In s3fs", path)
     # MNI_T2_img, img, mapping, bundles
-    data = seg_setup()
+    data = seg_setup(alg)
 
     fs = S3FileSystem()
     fs.invalidate_cache()
