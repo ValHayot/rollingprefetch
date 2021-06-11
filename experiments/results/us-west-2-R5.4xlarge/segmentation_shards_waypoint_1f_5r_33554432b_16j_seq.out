@@ -1,0 +1,21 @@
+action,file,timestamp,runtime,lazy,blocksize,prefetch_storage
+read_s3fs,vhs-bucket/shards/hydi_tracks.10_58_0_0.trk,158056270024155,10.087944919,False,33554432,
+segmentation_s3fs,"['vhs-bucket/shards/hydi_tracks.10_58_0_0.trk']",158004934480786,450.217010773,False,33554432,"[]"
+read_prefetch,"['vhs-bucket/shards/hydi_shard_header.trk', 'vhs-bucket/shards/hydi_tracks.10_58_0_0.trk']",158508176641617,5.71687083,False,33554432,"(('/dev/shm', 2048),)"
+segmentation_prefetch,"['vhs-bucket/shards/hydi_shard_header.trk', 'vhs-bucket/shards/hydi_tracks.10_58_0_0.trk']",158456395795796,445.60367595,False,33554432,"(('/dev/shm', 2048),)"
+read_s3fs,vhs-bucket/shards/hydi_tracks.10_58_0_0.trk,158954277881246,9.729279108,False,33554432,
+segmentation_s3fs,"['vhs-bucket/shards/hydi_tracks.10_58_0_0.trk']",158903244882884,448.07495018900005,False,33554432,"[]"
+read_prefetch,"['vhs-bucket/shards/hydi_shard_header.trk', 'vhs-bucket/shards/hydi_tracks.10_58_0_0.trk']",159404173384122,6.019062234000001,False,33554432,"(('/dev/shm', 2048),)"
+segmentation_prefetch,"['vhs-bucket/shards/hydi_shard_header.trk', 'vhs-bucket/shards/hydi_tracks.10_58_0_0.trk']",159352574494715,445.295485927,False,33554432,"(('/dev/shm', 2048),)"
+read_s3fs,vhs-bucket/shards/hydi_tracks.10_58_0_0.trk,159850139578528,8.87134434,False,33554432,
+segmentation_s3fs,"['vhs-bucket/shards/hydi_tracks.10_58_0_0.trk']",159799118646448,447.059290723,False,33554432,"[]"
+read_prefetch,"['vhs-bucket/shards/hydi_shard_header.trk', 'vhs-bucket/shards/hydi_tracks.10_58_0_0.trk']",160298535259666,5.933694501000001,False,33554432,"(('/dev/shm', 2048),)"
+segmentation_prefetch,"['vhs-bucket/shards/hydi_shard_header.trk', 'vhs-bucket/shards/hydi_tracks.10_58_0_0.trk']",160247427394531,443.584373296,False,33554432,"(('/dev/shm', 2048),)"
+read_s3fs,vhs-bucket/shards/hydi_tracks.10_58_0_0.trk,160743195317130,8.604182888,False,33554432,
+segmentation_s3fs,"['vhs-bucket/shards/hydi_tracks.10_58_0_0.trk']",160692255950660,446.899958522,False,33554432,"[]"
+read_prefetch,"['vhs-bucket/shards/hydi_shard_header.trk', 'vhs-bucket/shards/hydi_tracks.10_58_0_0.trk']",161191364358464,6.32096327,False,33554432,"(('/dev/shm', 2048),)"
+segmentation_prefetch,"['vhs-bucket/shards/hydi_shard_header.trk', 'vhs-bucket/shards/hydi_tracks.10_58_0_0.trk']",161140399706098,444.42192889,False,33554432,"(('/dev/shm', 2048),)"
+read_s3fs,vhs-bucket/shards/hydi_tracks.10_58_0_0.trk,161637720832213,8.993924856000001,False,33554432,
+segmentation_s3fs,"['vhs-bucket/shards/hydi_tracks.10_58_0_0.trk']",161586068788409,447.72479457000003,False,33554432,"[]"
+read_prefetch,"['vhs-bucket/shards/hydi_shard_header.trk', 'vhs-bucket/shards/hydi_tracks.10_58_0_0.trk']",162086775732531,5.5843230120000005,False,33554432,"(('/dev/shm', 2048),)"
+segmentation_prefetch,"['vhs-bucket/shards/hydi_shard_header.trk', 'vhs-bucket/shards/hydi_tracks.10_58_0_0.trk']",162035041161401,444.529946583,False,33554432,"(('/dev/shm', 2048),)"
