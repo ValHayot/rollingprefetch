@@ -285,7 +285,7 @@ def main(
 
     bfile = op.join(
         results_path,
-        f"segmentation_{file_type}_{alg}_{n_files}f_{reps}r_{block_size}b.out",
+        f"segmentation_{file_type}_{alg}_{n_files}f_{reps}r_{block_size}b_{njobs}j_{nworkers + 'dask' if dask else 'seq'}.out",
     )
 
     helpers.setup_bench(bfile)
