@@ -103,6 +103,7 @@ def histogram_s3fs(
 @click.option("--dask", type=bool, default=False)
 @click.option("--nworkers", type=int, default=1)
 @click.option("--instance", type=str, default="us-west-2-R5.4xlarge")
+@click.option("--lazy", type=bool, default=True)
 def main(
     file_type,
     prefetch_storage,
@@ -115,6 +116,7 @@ def main(
     dask,
     nworkers,
     instance,
+    lazy,
 ):
 
     types = list(types)
@@ -161,7 +163,7 @@ def main(
                         seg = client.submit(
                             histogram_s3fs,
                             files[i * f_per_w : (i + 1) * f_per_w],
-                            True,
+                            lazy,
                             block_size,
                             nbins=nbins,
                             output_dir=output_dir,
@@ -177,7 +179,7 @@ def main(
                         seg = client.submit(
                             histogram_prefetch,
                             header + files[i * f_per_w : (i + 1) * f_per_w],
-                            True,
+                            lazy,
                             block_size,
                             prefetch_storage,
                             nbins=nbins,
@@ -191,7 +193,7 @@ def main(
                 if t == "s3fs":
                     histogram_s3fs(
                         files,
-                        False,
+                        lazy,
                         block_size,
                         nbins=nbins,
                         output_dir=output_dir,
@@ -200,7 +202,7 @@ def main(
                 else:
                     histogram_prefetch(
                         header + files,
-                        False,
+                        lazy,
                         block_size,
                         prefetch_storage,
                         nbins=nbins,
