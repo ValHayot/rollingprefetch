@@ -135,7 +135,7 @@ def main(
 
     bfile = op.join(
         results_path,
-        f"histogram_{file_type}_{n_files}f_{reps}r_{block_size}b_{nbins}bins_{nworkers + 'dask' if dask else 'seq'}.out",
+        f"histogram_{file_type}_{n_files}f_{reps}r_{block_size}b_{nbins}bins_{str(nworkers) + 'dask' if dask else 'seq'}_{"lazy" if lazy else "nolazy"}.out",
     )
 
     helpers.setup_bench(bfile)
