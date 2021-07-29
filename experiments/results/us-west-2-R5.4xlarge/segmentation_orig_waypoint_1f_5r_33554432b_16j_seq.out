@@ -1,0 +1,11 @@
+action,file,timestamp,runtime,lazy,blocksize,prefetch_storage
+read_s3fs,hydi-tractography/hydi_tracks.10_58_0.trk,179994140753296,65.035745953,False,33554432,
+segmentation_s3fs,"['hydi-tractography/hydi_tracks.10_58_0.trk']",179942629270008,1100.5027766540002,False,33554432,"[]"
+read_s3fs,hydi-tractography/hydi_tracks.10_58_0.trk,181095693522724,70.516821238,False,33554432,
+segmentation_s3fs,"['hydi-tractography/hydi_tracks.10_58_0.trk']",181044381858755,1100.369121338,False,33554432,"[]"
+read_s3fs,hydi-tractography/hydi_tracks.10_58_0.trk,182196646460295,64.91021978,False,33554432,
+segmentation_s3fs,"['hydi-tractography/hydi_tracks.10_58_0.trk']",182145995896333,1098.09669919,False,33554432,"[]"
+read_s3fs,hydi-tractography/hydi_tracks.10_58_0.trk,183296655398853,81.14678093900001,False,33554432,
+segmentation_s3fs,"['hydi-tractography/hydi_tracks.10_58_0.trk']",183245343807875,1113.033414342,False,33554432,"[]"
+read_s3fs,hydi-tractography/hydi_tracks.10_58_0.trk,184410347691015,72.145877935,False,33554432,
+segmentation_s3fs,"['hydi-tractography/hydi_tracks.10_58_0.trk']",184359637934438,1104.893047607,False,33554432,"[]"
