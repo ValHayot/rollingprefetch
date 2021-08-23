@@ -49,7 +49,7 @@ To support the growing demands of neuroscience applications, researchers are tra
 Prefetching, a method to mitigate the cost of reading in mixed workloads, masks data transfer costs within processing time of prior tasks. We present an implementation of ``Rolling Prefetch", a Python library that implements a particular form of prefetching from AWS S3 object store, and we quantify its benefits.
 
 Rolling Prefetch extends \sfs, a Python library exposing AWS S3 functionality via a file object, to add prefetch capabilities. 
-In measured analysis performance of a 500~GB brain connectivity dataset stored on S3, we found that prefetching provides significant speed-ups of up to 1.8$\times$, even in applications consisting entirely of data loading. The observed speed-up values are consistent with our theoretical analysis. Our results demonstrate the usefulness of prefetching for scientific data processing on cloud infrastructures and provide an implementation applicable to various application domains.
+In measured analysis performance of a 500~GB brain connectivity dataset stored on S3, we found that prefetching provides significant speed-ups of up to 1.86$\times$, even in applications consisting entirely of data loading. The observed speed-up values are consistent with our theoretical analysis. Our results demonstrate the usefulness of prefetching for scientific data processing on cloud infrastructures and provide an implementation applicable to various application domains.
 
 
 %%%%%%%%%%%%%%%% original
@@ -520,7 +520,7 @@ throughput is expected to be reduced significantly with the addition of multiple
 We used a total of four parallel processes to evaluate the effects of parallel processing. We increased the number of
 files per thread between each condition from 1-20, with the last condition loading
 a total of \SI{108}{\gibi\byte} into Nibabel. The blocksize was set to \SI{64}{\mebi\byte} and we set the prefetch
-storage location to be on \texttt{tmpfs}, with a limit of \SI{1}{\gibi\byte} of storage per process. 5 repetitions were
+storage location to be on \texttt{tmpfs}, with a limit of \SI{1}{\gibi\byte} of storage per process. 10 repetitions were
 performed.
 
 \subsubsection{Neuroimaging use cases}\label{exp:4}
@@ -608,7 +608,7 @@ method. The results can be seen in Table~\ref{table:benchmarks}.
 \subsection{Varying the file size}
 As we increase the file size we observe that the disparity between \sfs and
 Rolling Prefetch increases (Figure~\ref{fig:filesize}), with Rolling Prefetch significantly outpacing ($\sim$1.7x faster) 
-\sfs at \SI{26}{\gibi\byte} (25 files). This is expected as per our theoretical evaluation. With a large amount of blocks, the pipeline duration is determined by the maximum between the time it takes to
+\sfs at \SI{31.2}{\gibi\byte} (25 files). This is expected as per our theoretical evaluation. With a large amount of blocks, the pipeline duration is determined by the maximum between the time it takes to
 compute the data $T_{comp}$ and the time it takes to transfer the data $T_{cloud}$. On the other hand, \sfs runtime is the sum of the time it takes to transfer the data and the compute. In this case, the compute time is large enough such that using Rolling Prefetch significantly reduces runtime with large amounts of data.
 
 As the size of the data decreases, the benefit of using Rolling Prefetch also decreases. 
@@ -618,41 +618,24 @@ than that of compute time, thus the only time we can save is that of $T_{comp}$.
 proportional to the number of blocks used, and thus the amount of time saved increases with file size. In the 
 worst case, Rolling Prefetch performance equals that of \sfs.
 
-\subsection{Parallelized workloads}
-% \tristan{This section refers to file numbers while figure is in GiB}
-When we parallelize the reads up to four concurrent processes (Figure~\ref{fig:parallel}), we notice that the trends are still consistent
-despite increased contention on local filesystems. This is likely due to the fact that \texttt{tmpfs} speeds
-would still be sufficiently high even with the increased contention caused by having at minimum 4 and 
-potentially even up to 8 concurrent threads accessing the filesystem at the same time. We speculate that the same 
-pipeline running with data read from a single disk would have had worse performance
-due to its lack of scalability.
-
-The maximum speedup achieved, on average, during this experiment was 1.8$\times$ at 5.8~GiB. The average speedup
-was around 1.5~x altogether, with the minimum average speedup being 1.37~x at 18~GB. Due to the high
-variability in results within both Rolling Prefetch and \sfs, we expect that these speedup differences may be a
-result of bandwidth and latency variability across runs. We do not expect that conditions are more favourable
-for reading the data with four threads processing 5.8~GiB. Since they are processing the
-same amount of data concurrently, the overall speedup should be constant.
-
 \subsection{Varying the block size}%% some parts may be better suited for discussion
 
-At a very large number of blocks, the performance of both \sfs and Rolling Prefetch is degraded as a result of 
-increased impacts of both S3 storage latency and, in the case of Rolling Prefetch, also local storage latency (Figure~\ref{fig:blocksize}).  \sfs starts to surpass the speed of Rolling Prefetch, although not substantially (approx. 1.03~X) at 747 blocks.  Furthermore, while we read from S3
+At a very large number of blocks, the performance of both \sfs and Rolling Prefetch is degraded due to
+increased impacts of both S3 storage latency and additionally, in the case of Rolling Prefetch, local storage latency (Figure~\ref{fig:blocksize}).  \sfs starts to surpass the speed of Rolling Prefetch, although not substantially (approx. 1.03~X) at 748 blocks.  Furthermore, while we read from S3
 at certain blocksizes, the block size on local storage is dictated by filesystem and kernel readahead 
 size. In our specific case, the data would be read from tmpfs, and thus we do not see a significant added cost
 to Rolling Prefetch. It could be inferred that the overhead of Rolling Prefetch may be more significant with a large
 number of blocks due to Nibabel's access patterns, which consist of many small reads.
 
 Conversely, when decreasing the number of blocks we start to see an increase in performance in both \sfs and Rolling Prefetch. This
-is because both benefit from a decreased latency to access data on S3, by generally making fewer read calls to it. Rolling Prefetch is found to be faster than \sfs with a peak speedup of 1.24~X at 186 blocks (i.e. 
-\SI{32}{\gibi\byte} blocks). The speedup obtained from Rolling Prefetch did not vary significantly between 23 and
-186 blocks, averaging at a speedup of approximately 1.2~X. Prefetching starts to outpace \sfs a bit below
-747 blocks as the cost of local latency has diminished sufficiently with the larger blocks. As the blocksize
-increases, Rolling Prefetch is able to begin maskinf S3 latency and bandwidth within its compute.
+is because both benefit from decreased latency to access data on S3, by generally making fewer read calls to it. Rolling Prefetch is found to be faster than \sfs with a peak speedup of 1.24~X at 187 blocks (i.e. 
+\SI{32}{\mebi\byte} blocks). The speedup obtained from Rolling Prefetch did not vary significantly between 24 and
+187 blocks, averaging at a speedup of approximately 1.2~X. Rolling Prefetch outpaces \sfs at less than
+748 blocks as the cost of local latency has diminished sufficiently with the larger blocks. As the blocksize
+increases, Rolling Prefetch is able to begin masking S3 latency and bandwidth within its compute.
 % The speedup being
 % proportional to how many more blocks can be read within the computation.
-\sfs and Rolling Prefetch performance converges
-once more as the number of blocks decrease and the block size increases, placing more weight disk bandwidth
+\sfs and Rolling Prefetch performance converges again when the blocks reach a certain size, placing more weight disk bandwidth
 than latency. \sfs exceeds the performance of Rolling Prefetch at a single block, where no actual prefetching can take
 place and we pay the cost of implementation overheads, such as writing the data to local storage 
 and reading it from local storage rather than directly from memory.
@@ -662,6 +645,22 @@ total files size and compute time was fixed, there was a fixed upper bound to ho
 be masked by compute time. By minimizing the amount of latency through a reduction in the number of blocks, the 
 overall application time was shortened, in both \sfs and Rolling Prefetch, and thus a larger percentage of the total 
 runtime could be masked by compute.
+
+\subsection{Parallelized workloads}
+% \tristan{This section refers to file numbers while figure is in GiB}
+When we parallelize the reads up to four concurrent processes (Figure~\ref{fig:parallel}), we notice that the trends are still consistent
+despite increased contention on local filesystems. This is likely due to the fact that \texttt{tmpfs} speeds
+would remain sufficiently high even with the increased contention caused by having at minimum 4 and 
+potentially even up to 8 concurrent threads accessing the filesystem at the same time. We speculate that the same 
+pipeline running with data read from a single disk would have had worse performance
+due to its lack of scalability.
+
+The maximum speedup achieved, on average, during this experiment was 1.86$\times$ at 24.2~GiB. The average speedup
+was around 1.52~x altogether, with the minimum average speedup being 1.37$\times$ at 80.6~GB. Due to the high
+variability in results within both Rolling Prefetch and \sfs, we expect that these speedup differences may be a
+result of bandwidth and latency variability across runs. We do not expect that conditions are more favourable
+for reading the data with four threads processing 24.2~GiB; since they are processing the
+same amount of data concurrently, the overall speedup should be constant.
 
 \subsection{Neuroimaging use-cases}
 
