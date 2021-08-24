@@ -1,6 +1,10 @@
 # Rolling Prefetch
 
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5240870.svg)](https://doi.org/10.5281/zenodo.5240870)
+
+
+
 Rolling Prefetch is an API extension to [S3Fs](https://github.com/dask/s3fs) that enables the prefetching of sequentially read files
 while evicting those that have been previously read.
 It was inspired by the need to read a large tractography file (~500GB) split up into multiple blocks from S3.
