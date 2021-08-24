@@ -477,12 +477,12 @@ in which case latency will be penalizing both reads from \sfs and Rolling Prefet
 to mask the data transfers within the compute.
 
 We benchmarked the time it took to lazily read 1, 5, 10, 15, 20 and 25 files and extract the streamlines in Nibabel.
-The total data size for each of the file increments are 1, 6, 12, 18 and \SI{24}{\gibi\byte},
+The total data size for each of the file increments are 1.1, 5.8, 11.9, 18.0, 24.2 and \SI{31.2}{\gibi\byte},
 respectively. The blocksize was set to \SI{64}{\mebi\byte} and the prefetch storage was located on \texttt{tmpfs} with
 a limit of \SI{2}{\gibi\byte} of storage space. We performed 10 repetitions.
 
 \subsubsection{Varying the blocksize}\label{exp:blocksize}
-In this experiment, we aimed to quantify the effect of the number of blocks ($n_b$) on Rolling Prefetch and \sfs. According to our previous analysis, we expect that \sfs will reach its best performance with a single block, and that the runtime will linearly increase with $n_b$ from that point on. For Rolling Prefetch we expect the runtime to decrease to a minimum, and then increase linearly with $n_b$.
+In this experiment, we aimed to quantify the effect of the number of blocks ($n_b$) on Rolling Prefetch and \sfs. According to our previous analysis, we expect that \sfs will reach its best performance with a single block, and that the runtime will linearly increase with $n_b$ from that point on. For Rolling Prefetch, we expect the runtime to decrease to a minimum, and then increase linearly with $n_b$.
 
 
 Block sizes of 8, 16, 32, 64, 128, 256, 512, 1024,
