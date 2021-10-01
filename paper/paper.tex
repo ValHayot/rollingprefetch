@@ -169,6 +169,8 @@ To offset the cost of latency on S3, \sfs leverages the on-demand caching mechan
 
 Unlike \sfs which has distinct data transfer and compute phases, prefetched data transfers happen concurrently with compute (Figure~\ref{fig:prefetch}). In both cases, data is transferred from cloud storage in blocks of configurable size. While local I/O overheads occur during prefetch, the resulting overhead is in general minimal since memory disks are expected to be used for this purpose. Most importantly, prefetching requires knowledge of the application's data access pattern, such that transfers can be correctly anticipated. In our case, we assume that data is read sequentially, as is commonly the case with tractography data.
 
+Since Rolling Prefetch is implemented as a layer atop \sfs, it can easily replace an existing call to S3Fs by calling \texttt{S3PrefetchFileSystem} instead of \texttt{S3FileSystem}.
+
 \begin{figure}
 \begin{center}
 \includegraphics[width=\columnwidth]{figures/prefetch_diagram.pdf}
@@ -191,7 +193,8 @@ Unlike \sfs which has distinct data transfer and compute phases, prefetched data
 % least recently used block is evicted and the next one is read. By default, \sfs uses the BytesCache with a block size of
 % 5~MB.
 
-Rolling Prefetch combines prefetching with data eviction. By evicting data post application processing, it ensures a reduced footprint on local storage. Rolling Prefetch consists of three threads: (1) the reading thread loads data blocks from local storage and marks them for eviction, (2) the prefetching thread transfers data blocks from cloud storage to local storage, and (3) the eviction threads deletes the blocks that have been marked for eviction.
+Rolling Prefetch combines prefetching with data eviction. By evicting data post application processing, it ensures a reduced footprint on the local storage leveraged as cache by Rolling Prefetch
+(e.g. tmpfs, SSD, HDD). Rolling Prefetch consists of three threads: (1) the reading thread loads data blocks from local storage and marks them for eviction, (2) the prefetching thread transfers data blocks from cloud storage to local storage, and (3) the eviction threads deletes the blocks that have been marked for eviction.
 % \valerie{cut read alg below}
 % \begin{algorithm}
 % \SetAlgoLined
@@ -462,7 +465,8 @@ In addition, an affine transform is stored together with the data, and used to b
 
 \subsection{Experiments}
 To evaluate the performance Rolling Prefetch, we conducted 4 experiments: 1) varying
-the number of files; 2) varying the blocksize; 3) parallel processing of files;  and 4) neuroimaging use-cases. For experiments 1-3, the pipeline consisted of reading the file with Nibabel. As Nibabel
+the number of files; 2) varying the blocksize; 3) parallel processing of files;  and 4) neuroimaging use-cases.
+For experiments 1-3, the pipeline consisted of reading the file with Nibabel. As Nibabel
 performs a minimal amount of computing, Rolling Prefetch is believed to have an effect even here. Additional compute required
 by real analysis should only increase the benefit of using prefetching.
 % For all experiments we are using tractography
@@ -800,6 +804,10 @@ obtained when we set the cache location to a \texttt{tmpfs} device and may natur
 on loading nearly \SI{100}{\gibi\byte} of data with a maximum runtime of approximately 71~min. Moreover, this
 was achieved on a small instance with only \SI{1}{\gibi\byte} of prefetch storage allotted to each parallel
 process, indicating that we can achieve good speedups even when resources are constrained. 
+
+Our results show that significant speedup can be gained even in instances where compute is rather short. While our results
+pertain to the applicability of Rolling Prefetch to neuroimaging, similar speedups can be expected from other kinds of sequentially read data processing,
+such as a filter on a very large file.
 
 \subsection{Parallelism-related overheads}
 
