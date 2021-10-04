@@ -177,6 +177,7 @@ Since Rolling Prefetch is implemented as a layer atop \sfs, it can easily replac
 \end{center}
 \caption{Prefetching vs sequential transfers (\sfs)}
 %https://docs.google.com/drawings/d/1MV5dIdLyBrM_HJX-0jOsIKf90UD8wXE_G5Cnmd-mY-A/edit
+\vspace{-1.5em}
 \label{fig:prefetch}
 \end{figure}
 
@@ -193,7 +194,7 @@ Since Rolling Prefetch is implemented as a layer atop \sfs, it can easily replac
 % least recently used block is evicted and the next one is read. By default, \sfs uses the BytesCache with a block size of
 % 5~MB.
 
-Rolling Prefetch combines prefetching with data eviction. By evicting data post application processing, it ensures a reduced footprint on the local storage leveraged as cache by Rolling Prefetch
+Rolling Prefetch combines prefetching with data eviction. By evicting processed data, it ensures a reduced footprint on the local storage leveraged as cache
 (e.g. tmpfs, SSD, HDD). Rolling Prefetch consists of three threads: (1) the reading thread loads data blocks from local storage and marks them for eviction, (2) the prefetching thread transfers data blocks from cloud storage to local storage, and (3) the eviction threads deletes the blocks that have been marked for eviction.
 % \valerie{cut read alg below}
 % \begin{algorithm}
@@ -603,7 +604,7 @@ method. The results can be seen in Table~\ref{table:benchmarks}.
  latency (s) & 0.1 & $\num{1.6e-6}$ \\
  \hline
 \end{tabular}
-
+\vspace{-1.5em}
 \label{table:benchmarks}
 \end{table}
 
@@ -715,11 +716,13 @@ execution further exacerbated by the decrease in available vCPUs.
 
 \begin{figure}
 \begin{center}
+    \vspace{-0.6em}
 \includegraphics[height=160pt]{figures/filesize.pdf}
 \setlength{\abovecaptionskip}{0pt}
-\setlength{\belowcaptionskip}{-10pt}
+\setlength{\belowcaptionskip}{-30pt}
 \caption{Runtime performance of reading subsets of the HYDI dataset stored on Amazon S3 into Nibabel using \sfs and Rolling Prefetch on an Amazon EC2 t2.xlarge instance. Blocksize was set to \SI{64}{\mebi\byte} on both \sfs and
 Rolling Prefetch. Prefetch cache consisted of \SI{2}{\gibi\byte} tmpfs storage.}
+\vspace{-5.53em}
 \label{fig:filesize}
 \end{center}
 \end{figure}
@@ -732,6 +735,7 @@ Rolling Prefetch. Prefetch cache consisted of \SI{2}{\gibi\byte} tmpfs storage.}
 \caption{Runtime performance of reading subsets of the HYDI dataset stored on Amazon S3 into Nibabel in parallel using 4
 \sfs and Rolling Prefetch processes. Blocksize was set to \SI{64}{\mebi\byte} on both \sfs and Rolling Prefetch.
 Prefetch cache consisted of \SI{1}{\gibi\byte} tmpfs storage.}
+\vspace{-5.5em}
 \label{fig:parallel}
 \end{center}
 \end{figure}
@@ -743,6 +747,7 @@ Prefetch cache consisted of \SI{1}{\gibi\byte} tmpfs storage.}
  \setlength{\belowcaptionskip}{-20pt}
 \caption{Runtime performance of reading a \SI{6}{\gibi\byte} subset of the HYDI dataset stored on Amazon S3 into Nibabel using
 \sfs and Rolling Prefetch with various block size configurations on an Amazon EC2 t2.xlarge instance. Prefetch cache consisted of  \SI{2}{\gibi\byte} tmpfs storage.}
+\vspace{-1.5em}
 \label{fig:blocksize}
 \end{center}
 \end{figure}
@@ -764,6 +769,7 @@ Prefetch cache consisted of \SI{1}{\gibi\byte} tmpfs storage.}
 \setlength{\abovecaptionskip}{-10pt}
 \setlength{\belowcaptionskip}{-8pt}
 \caption{Rolling prefetch speedup of the neuroimaging use-cases (histogram and bundle recognition) in various conditions. Experiments varying instance type and number of files were only performed with the bundle recognition pipeline.} 
+\vspace{-1.5em}
 \label{fig:speedup}
 \end{center}
 \end{figure}
@@ -805,9 +811,7 @@ on loading nearly \SI{100}{\gibi\byte} of data with a maximum runtime of approxi
 was achieved on a small instance with only \SI{1}{\gibi\byte} of prefetch storage allotted to each parallel
 process, indicating that we can achieve good speedups even when resources are constrained. 
 
-Our results show that significant speedup can be gained even in instances where compute is rather short. While our results
-pertain to the applicability of Rolling Prefetch to neuroimaging, similar speedups can be expected from other kinds of sequentially read data processing,
-such as a filter on a very large file.
+While our results pertain to the applicability of Rolling Prefetch to neuroimaging, similar speedups can be expected from other kinds of sequential processing, such as standard text file processing like word count.
 
 \subsection{Parallelism-related overheads}
 
