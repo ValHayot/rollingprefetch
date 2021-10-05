@@ -465,7 +465,7 @@ In addition, an affine transform is stored together with the data, and used to b
 % One of the challenges of analyzing volumetric data from neuroimaging is that the origin, voxel size and orientation of the acquisition volume can vary between different acquisitions (e.g., different MRI contrasts). To correspond the data from these different acquisitions, affine transforms are stored together with the data, and the transforms can be applied to the coordinates of different data to bring them into register. For example, when Nibabel reads \texttt{.trk} files it automatically applies an affine transformation to the coordinates of each streamline stored in the file. This means that some amount of compute is always executed when data is read from file.
 
 \subsection{Experiments}
-To evaluate the performance Rolling Prefetch, we conducted 4 experiments: 1) varying
+To evaluate the performance Rolling Prefetch, we conducted four experiments: 1) varying
 the number of files; 2) varying the blocksize; 3) parallel processing of files;  and 4) neuroimaging use-cases.
 For experiments 1-3, the pipeline consisted of reading the file with Nibabel. As Nibabel
 performs a minimal amount of computing, Rolling Prefetch is believed to have an effect even here. Additional compute required
@@ -550,7 +550,7 @@ each individual streamline and generating a histogram of 20 bins from their leng
 
 The human brain is composed of multiple different functional regions, and these regions are connected through major anatomical pathways. One of the first steps in the analysis of streamline data from human brain dMRI data is to classify the streamlines according to their three-dimensional trajectory into these different pathways. This is referred to as ``bundle recognition"~\cite{garyfallidis2018recognition}. To demonstrate the benefits of Rolling Prefetch in this use-case, we ran a software pipeline that determines whether streamlines within the tractography file belong to either of two different bundles (the corticospinal tract, CST and the arcuate fasciculus, ARC), or to neither \cite{Kruper2021-bo}. Currently, the pipeline loads the data all at once (i.e. no lazy loading) and then performs the bundle recognition task. Thus, it is not possible to read only fragments of a large file which does not fit in memory, in this case, and as a consequence of the separation of data loading and processing, there will be no opportunities to keep the prefetched data transfers masked within compute operations. 
 
-We chose not to modify the pipeline, in order to determine what is the speedup provided
+We chose not to modify the pipeline in order to determine what is the speedup provided
 by Rolling Prefetch without additional optimization, and in order to be able to speculate on the possible benefits of adapting existing pipelines
 to support larger-than-memory files and allowing reads and computations to occur together.
 
@@ -626,14 +626,14 @@ worst case, Rolling Prefetch performance equals that of \sfs.
 \subsection{Varying the block size}%% some parts may be better suited for discussion
 
 At a very large number of blocks, the performance of both \sfs and Rolling Prefetch is degraded due to
-increased impacts of both S3 storage latency and additionally, in the case of Rolling Prefetch, local storage latency (Figure~\ref{fig:blocksize}).  \sfs starts to surpass the speed of Rolling Prefetch, although not substantially (approx. 1.03~X) at 748 blocks.  Furthermore, while we read from S3
+increased impacts of both S3 storage latency and, in the case of Rolling Prefetch, local storage latency (Figure~\ref{fig:blocksize}).  \sfs starts to surpass the speed of Rolling Prefetch, although not substantially (approx. 1.03~X) at 748 blocks.  Furthermore, while we read from S3
 at certain blocksizes, the block size on local storage is dictated by filesystem and kernel readahead 
 size. In our specific case, the data would be read from tmpfs, and thus we do not see a significant added cost
 to Rolling Prefetch. It could be inferred that the overhead of Rolling Prefetch may be more significant with a large
 number of blocks due to Nibabel's access patterns, which consist of many small reads.
 
-Conversely, when decreasing the number of blocks we start to see an increase in performance in both \sfs and Rolling Prefetch. This
-is because both benefit from decreased latency to access data on S3, by generally making fewer read calls to it. Rolling Prefetch is found to be faster than \sfs with a peak speedup of 1.24~X at 187 blocks (i.e. 
+Conversely, when decreasing the number of blocks we see an increase in performance in both \sfs and Rolling Prefetch. This
+is because both benefit from decreased latency to access data on S3, by making fewer read calls to it. Rolling Prefetch is found to be faster than \sfs with a peak speedup of 1.24~X at 187 blocks (i.e. 
 \SI{32}{\mebi\byte} blocks). The speedup obtained from Rolling Prefetch did not vary significantly between 24 and
 187 blocks, averaging at a speedup of approximately 1.2~X. Rolling Prefetch outpaces \sfs at less than
 748 blocks as the cost of local latency has diminished sufficiently with the larger blocks. As the blocksize
@@ -803,9 +803,9 @@ will not scale adequately to increased contention.
 Rolling Prefetch is an added layer on top of \sfs that replaces its built-in cache strategies to intercept
 application read calls and ensure that data is preloaded. The implementation ensures that filesystem space requirements are not exceeded during prefetching through limits set by the user. 
 With the built-in eviction mechanism, users are not required to do any form of data management should they be processing datasets larger than available storage. Furthermore, the library allows configuration of multiple storage device as cache for prefetching. Currently,
-files are written to specific storage devices based on available space and storage priority in the list.
+files are written to specific storage devices based on available space and storage priority.
 
-With just a simple implementation performed on a computation based on reading, we have observed up to a 1.8$\times$ speedup and a maximum overhead of 1.03$\times$. These observed speedups were
+With just a simple data loading workload, we have observed up to a 1.8$\times$ speedup and a maximum overhead of 1.03$\times$. These observed speedups were
 obtained when we set the cache location to a \texttt{tmpfs} device and may naturally decrease with a slower device such as an SSD. In our particular case, the speedups meant saving 20~min of processing time
 on loading nearly \SI{100}{\gibi\byte} of data with a maximum runtime of approximately 71~min. Moreover, this
 was achieved on a small instance with only \SI{1}{\gibi\byte} of prefetch storage allotted to each parallel
@@ -841,8 +841,7 @@ take a significant amount of time, depending on how much data had been processed
 It is understandable that implementations such as Netco are adaptations to
 persistent filesystem, since then prefetching could work without limiting scheduler logic. For our 
 implementation to be efficient within parallel processing frameworks, we would need to decouple it from
-the task itself and allow it to communicate with the task scheduler to determine which files to prefetch and
-where.
+the task itself and allow it to communicate with the task scheduler to determine which files to prefetch.
 
 
 
